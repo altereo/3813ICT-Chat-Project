@@ -12,6 +12,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 var http = require('http').Server(app);
 
+// Additional routes.
+var chatRoutes = require('./routes/chat.js');
+
 
 // Log requests to console.
 app.use((req, res, next) => {
@@ -30,33 +33,10 @@ app.post('/api/auth', (req, res) => {
 	return;
 });
 
-// Get a list of group IDs the user belongs to.
-app.get('/api/groups/:userID', (req, res) => {
-	let id = req.params.userID;
-	res.json({
-		"status": "OK",
-		"groups": auth.fetchGroups(id)
-	});
-	return;
-});
 
-app.get('/api/channels/:groupID', (req, res) => {
-	let groupID = req.params.groupID;
-	res.json({
-		"status": "NOT_IMPLEMENTED",
-		"channels": []
-	});
-	return;
-});
+// Import the chat routes under the chat path.
+app.use('/api/chat', chatRoutes);
 
-app.get('/api/messages/:channelID', (req, res) => {
-	let channelID = req.params.channelID;
-	res.json({
-		"status": "NOT_IMPLEMENTED",
-		"messages": []
-	});
-	return;
-})
 
 
 // Start the server.
