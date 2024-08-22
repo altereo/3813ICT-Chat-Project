@@ -1,0 +1,14 @@
+{
+  "name": "3813-chat-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "S5293070, Evan On Yung Lee",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
