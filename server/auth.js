@@ -4,7 +4,7 @@ const users = [
 		"username": "Superadmin",
 		"password": "123",
 		"roles": ["SUPERADMIN"],
-		"groups": [],
+		"groups": [0],
 		"id": 914976000
 	}
 ];
@@ -23,4 +23,12 @@ const validate = (email, password) => {
 	});
 };
 
+const fetchGroups = (id) => {
+	let user = users.find(user => user.id = id);
+	if (!user) return([]);
+
+	return(user.groups);
+}
+
 exports.validate = validate;
+exports.fetchGroups = fetchGroups;

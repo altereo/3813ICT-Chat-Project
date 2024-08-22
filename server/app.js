@@ -20,13 +20,43 @@ app.use((req, res, next) => {
 });
 
 
-// Allow post request for auth purposes.
+// Authenticate user.
 app.post('/api/auth', (req, res) => {
 	let authData = req.body;
 	res.json({
+		"status": "OK",
 		"user": auth.validate(authData.email, authData.password)
 	});
-}); 
+	return;
+});
+
+// Get a list of group IDs the user belongs to.
+app.get('/api/groups/:userID', (req, res) => {
+	let id = req.params.userID;
+	res.json({
+		"status": "OK",
+		"groups": auth.fetchGroups(id)
+	});
+	return;
+});
+
+app.get('/api/channels/:groupID', (req, res) => {
+	let groupID = req.params.groupID;
+	res.json({
+		"status": "NOT_IMPLEMENTED",
+		"channels": []
+	});
+	return;
+});
+
+app.get('/api/messages/:channelID', (req, res) => {
+	let channelID = req.params.channelID;
+	res.json({
+		"status": "NOT_IMPLEMENTED",
+		"messages": []
+	});
+	return;
+})
 
 
 // Start the server.
