@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-const auth = require('../auth.js');
+const storage = require('../datamodel/interface.js');
+
+const fetchGroups = (id) => {
+	let user = storage.getTable("users").find(user => user.id = id);
+	if (!user) return([]);
+
+	return(user.groups);
+}
 
 router
 .get('/', (req, res) => {
@@ -13,7 +20,7 @@ router
 	let id = req.params.userID;
 	res.json({
 		"status": "OK",
-		"groups": auth.fetchGroups(id)
+		"groups": fetchGroups(id)
 	});
 	return;
 })

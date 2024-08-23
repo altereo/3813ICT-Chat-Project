@@ -1,6 +1,5 @@
 const express = require('express');
 
-const auth = require('./auth.js');
 const logger = require('./logger.js');
 
 var app = express();
@@ -13,8 +12,8 @@ app.use(express.urlencoded({ extended: true }));
 var http = require('http').Server(app);
 
 // Additional routes.
+var authRoutes = require('./routes/auth.js');
 var chatRoutes = require('./routes/chat.js');
-
 
 // Log requests to console.
 app.use((req, res, next) => {
@@ -23,15 +22,8 @@ app.use((req, res, next) => {
 });
 
 
-// Authenticate user.
-app.post('/api/auth', (req, res) => {
-	let authData = req.body;
-	res.json({
-		"status": "OK",
-		"user": auth.validate(authData.email, authData.password)
-	});
-	return;
-});
+// Import auth routes.
+app.use('/api/auth', authRoutes)
 
 
 // Import the chat routes under the chat path.
