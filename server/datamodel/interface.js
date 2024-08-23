@@ -1,20 +1,65 @@
+/*
+	ROLE VALUES
+	- SUPERADMIN
+	- ID::ADMIN
+	- ID::USER
+
+	ID Schema:
+	- User IDs are 9 digits.
+	- Group IDs are 12 digits.
+	- Channel IDs are 8 digits.
+*/
+
 const users = [
 	{
 		"email": "evan.lee@gmail.com",
 		"username": "Superadmin",
 		"password": "123",
 		"roles": ["SUPERADMIN"],
-		"groups": [0],
+		"groups": [324123246245, 124532467324],
 		"id": 914976000
 	}
 ];
 
+const groups = [
+	{
+		"id": 324123246245,
+		"name": "Test Server",
+		"channels": [
+			{
+				"id": 19384920,
+				"name": "general-1"
+			},
+			{
+				"id": 24242593,
+				"name": "general-2"
+			}
+		]
+	},
+	{
+		"id": 124532467324,
+		"name": "Test Server 2",
+		"channels": [
+			{
+				"id": 19384920,
+				"name": "general-1"
+			},
+			{
+				"id": 38299480,
+				"name": "homework-help"
+			}
+		]
+	}
+]
+
+
 const tableSet = {
-	users
+	users,
+	groups
 };
 
 function getTable(type) {
-	return(tableSet?.users);
+	return(tableSet[type]);
 }
 
 module.exports = { getTable };

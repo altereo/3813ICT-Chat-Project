@@ -4,11 +4,19 @@ const router = express.Router();
 const storage = require('../datamodel/interface.js');
 
 const fetchGroups = (id) => {
-	let user = storage.getTable("users").find(user => user.id = id);
+	let user = storage.getTable("users").find(user => user.id == id);
 	if (!user) return([]);
 
 	return(user.groups);
 }
+
+const getGroup = (id) => {
+	let group = storage.getTable("groups").find(group => group.id == id);
+	if (!group) return({});
+
+	return (group);
+}
+
 
 router
 .get('/', (req, res) => {
@@ -25,12 +33,12 @@ router
 	return;
 })
 
-// Get all channels for a given group.
-.get('/channels/:groupID', (req, res) => {
+// Get information on a given group.
+.get('/group/:groupID', (req, res) => {
 	let groupID = req.params.groupID;
 	res.json({
-		"status": "NOT_IMPLEMENTED",
-		"channels": []
+		"status": "OK",
+		"group": getGroup(groupID)
 	});
 	return;
 })
