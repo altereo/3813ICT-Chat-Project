@@ -12,12 +12,13 @@
 				</button>
 			</h5>
 			<div ngbAccordionCollapse>
-				<div class="container channel-item" *ngFor="let channel of group.channels">
+				<div class="container channel-item" *ngFor="let channel of group.channels" [routerLink]="'/home/channel/' + group.id + '::' + channel.id" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact: true}">
 					<p class="channel-text" id="{{channel.id}}">{{channel.name}}</p>
 				</div>
 			</div>
 		</div>
 	</div>
 	<div class="container chat-window">
+		<router-outlet />
 	</div> 
 </div>

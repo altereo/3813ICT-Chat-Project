@@ -27,6 +27,7 @@ export type Group = {
   id: number;
   name: string;
   channels: Channel[];
+  users: number[];
 }
 
 
@@ -49,10 +50,11 @@ export class ChatApiService {
 
   // Store data in sessionStorage.
   private store(key: string, data: any) {
-    this.user$.next(data);
+    if (key === "user") this.user$.next(data);
+    if (key === "groups") this.groups$.next(data);
 
     if (!this.isBrowser) return(null);
-    sessionStorage.setItem('user', JSON.stringify(data));
+    sessionStorage.setItem(key, JSON.stringify(data));
     return(true);
   }
 
@@ -63,6 +65,18 @@ export class ChatApiService {
     let data = sessionStorage.getItem('user') || "{ \"valid\": false }";
     return(JSON.parse(data));
   }
+
+  // Get chat title by server and channel ID from session storage.
+  getChatTitle(groupID: number, channelID: number): string {
+    if (!this.isBrowser) return("");
+
+    let data: Group[] = JSON.parse(sessionStorage.getItem('groups') || "[]");
+    let group = (data.find((group: Group) => group.id === groupID));
+    let channel = group?.channels?.find((channel: Channel) => channel.id === channelID);
+    
+    return(`${group?.name} :: ${channel?.name}` || "");
+  }
+
 
   // Return boolean if user is 'logged in'.
   isLoggedIn(): boolean {
@@ -90,6 +104,7 @@ export class ChatApiService {
   // Clear user data from session (logout).
   clearUser() {
     this.store("user", { "valid": false });
+    this.store("groups", []);
     return;
   }
 
@@ -98,7 +113,7 @@ export class ChatApiService {
     this.httpClient.get(`${BACKEND_URL}/api/chat/groups/${userID}`, httpOptions).subscribe((data: any) => {
       if (data.status === "OK") {
         let groups = data.groups;
-        this.groups$.next(groups);
+        this.store("groups", groups);
 
         return;
       }

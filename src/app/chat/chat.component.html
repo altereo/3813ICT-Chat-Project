@@ -1,0 +1,18 @@
+<div class="d-flex flex-column chat-subwindow">
+	<div class="container chat-header">
+		<h5>
+			{{chatTitle}}
+		</h5>
+	</div>
+	<div class="chat-view container-fluid">
+
+	</div>
+	<div class="message-bar">
+		<div class="input-view">
+			<div class="btn btn-link" id="upload-button">
+				<i class="bi bi-plus-circle-fill"></i>
+			</div>
+			<input class="input-box" (keyup.enter)="sendMessage($any($event).target.value)" [(ngModel)]="message" />
+		</div>
+	</div>
+</div>

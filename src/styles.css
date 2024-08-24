@@ -8,3 +8,9 @@ html, body {
 	height: auto;
 	margin: 0;
 }
+
+app-chat {
+	height: 100%;
+	width: 100%;
+	display: inline-block;
+}

@@ -24,7 +24,7 @@ const users = [
 		"password": "123",
 		"roles": ["SUPERADMIN"],
 		"groups": [324123246245, 124532467324],
-		"id": 914976000
+		"id": 535134682
 	},
 	{
 		"email": "alice.margatroid@gmail.com",
@@ -32,7 +32,7 @@ const users = [
 		"password": "123",
 		"roles": ["324123246245::ADMIN"],
 		"groups": [324123246245],
-		"id": 914976000
+		"id": 663242268
 	},
 	{
 		"email": "tim.price@gmail.com",
@@ -40,7 +40,7 @@ const users = [
 		"password": "123",
 		"roles": [],
 		"groups": [124532467324],
-		"id": 914976000
+		"id": 127845683
 	}
 ];
 
@@ -57,7 +57,8 @@ const groups = [
 				"id": 24242593,
 				"name": "general-2"
 			}
-		]
+		],
+		"users": [914976000, 535134682, 663242268]
 	},
 	{
 		"id": 124532467324,
@@ -71,7 +72,8 @@ const groups = [
 				"id": 38299480,
 				"name": "homework-help"
 			}
-		]
+		],
+		"users": [914976000, 535134682, 127845683]
 	}
 ]
 

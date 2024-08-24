@@ -48,9 +48,18 @@
 	background-color: rgba(76, 108, 148, 0.6);
 }
 
+.channel-item.active {
+	background-color: rgba(76, 108, 148, 0.6);
+}
+
+.channel-item:active {
+	background-color: rgba(76, 108, 148, 0.4) !important;
+}
+
 .chat-window {
 	height: calc(100vh - 24px);
 	border-left: 1px solid var(--subtlegray);
+	padding: 0;
 }
 
 .main-window {
