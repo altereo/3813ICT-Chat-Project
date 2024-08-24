@@ -22,7 +22,7 @@ router.post('/', (req, res) => {
 	let authData = req.body;
 	res.json({
 		"status": "OK",
-		"user": auth.validate(authData.email, authData.password)
+		"user": validate(authData.email, authData.password)
 	});
 	return;
 });

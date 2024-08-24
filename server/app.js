@@ -21,6 +21,9 @@ app.use((req, res, next) => {
 	next();
 });
 
+app.get('/api/test', (req, res) => {
+	res.json({"status": "OK"});
+});
 
 // Import auth routes.
 app.use('/api/auth', authRoutes)

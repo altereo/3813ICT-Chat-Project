@@ -1,0 +1,19 @@
+<div class="container-lg login-modal">
+	<form class="container needs-validation" id="login-form" (input)="onChange()" novalidate>
+		<h4 id="login-header">Welcome back!</h4>
+		<div class="mb-3">
+			<label for="email" class="form-label">Email</label>
+			<input type="email" [(ngModel)]="email" name="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && error }" id="email" placeholder="name@example.com" required>
+		</div>
+		<div class="mb-3">
+			<label for="password" class="form-label">Password</label>
+			<input type="password" [(ngModel)]="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && error }" id="password" required>
+			<div class="invalid-feedback">
+				The email or password was incorrect.
+			</div>
+		</div>
+		<div class="mb-3">
+			<button type="submit" class="btn btn-primary btn-block" (click)="attemptLogon()">Login</button>
+		</div>
+	</form>
+</div>

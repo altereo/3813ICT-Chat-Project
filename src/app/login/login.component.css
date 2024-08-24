@@ -1,0 +1,20 @@
+.login-modal {
+	border: 1px solid var(--subtlegray);
+	border-radius: 8px;
+	width: 50%;
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	flex-direction: column;
+	padding: 32px;
+	margin-top: 72px;
+}
+
+h4#login-header {
+	text-align: center;
+	margin-bottom: 32px;
+}
+
+button[type="submit"] {
+	width: 100%;
+}
