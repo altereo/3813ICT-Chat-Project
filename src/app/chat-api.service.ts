@@ -1,4 +1,4 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -7,6 +7,7 @@ const httpOptions = {
 };
 const BACKEND_URL = "http://127.0.0.1:3000";
 
+// Type template for user object.
 export type User = {
   username: string | null;
   email: string | null;
@@ -15,6 +16,19 @@ export type User = {
   groups: number[];
   valid: boolean;
 }
+
+// Type templates for channels and groups.
+export type Channel = {
+  id: number;
+  name: string;
+}
+
+export type Group = {
+  id: number;
+  name: string;
+  channels: Channel[];
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +43,9 @@ export class ChatApiService {
     groups: [],
     valid: false
   });
+
+  private readonly groups$: BehaviorSubject<Group[]> = new BehaviorSubject<Group[]>([]);
+
 
   // Store data in sessionStorage.
   private store(key: string, data: any) {
@@ -78,22 +95,40 @@ export class ChatApiService {
 
   // Get groups belonging to a given user.
   getGroups(userID: number) {
-    return(this.httpClient.get(`${BACKEND_URL}/groups/${userID}`, httpOptions));
+    this.httpClient.get(`${BACKEND_URL}/api/chat/groups/${userID}`, httpOptions).subscribe((data: any) => {
+      if (data.status === "OK") {
+        let groups = data.groups;
+        this.groups$.next(groups);
+
+        return;
+      }
+    })
   }
 
   // Get details of a group, including available channels and name.
   getGroupDetails(groupID: number) {
-    return(this.httpClient.get(`${BACKEND_URL}/group/${groupID}`, httpOptions));
+    return(this.httpClient.get(`${BACKEND_URL}/api/chat/group/${groupID}`, httpOptions));
   }
 
   // Get messages in channel.
   getMessages(channelID: number) {
-    return(this.httpClient.get(`${BACKEND_URL}/messages/${channelID}`, httpOptions));
+    return(this.httpClient.get(`${BACKEND_URL}/api/chat/messages/${channelID}`, httpOptions));
   }
 
 
+  // Getters for any multicast observables we have.
   get user(): Observable<User> {
     return(this.user$.asObservable());
+  }
+
+  get groups(): Observable<Group[]> {
+    return(this.groups$.asObservable());
+  }
+
+
+  synchroniseService() {
+    this.store("user", this.getUser());
+    return;
   }
 
   constructor(@Inject(PLATFORM_ID) private platformId:Object, private httpClient: HttpClient) {

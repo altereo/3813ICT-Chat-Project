@@ -2,3 +2,9 @@
 :root {
 	--subtlegray: #585858;
 }
+
+html, body {
+	min-height: 100vh;
+	height: auto;
+	margin: 0;
+}

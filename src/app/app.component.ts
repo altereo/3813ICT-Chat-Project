@@ -5,6 +5,8 @@ import { RouterModule, RouterLink, RouterOutlet, Router, NavigationEnd } from '@
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
+import * as $ from 'jquery';
+
 import { ChatApiService, User } from './chat-api.service';
 
 @Component({
@@ -16,7 +18,6 @@ import { ChatApiService, User } from './chat-api.service';
 })
 export class AppComponent implements OnInit {
   user: Observable<User>;
-
   isLoggedIn: boolean = false;
 
   title = '3813ICT-Chat';
@@ -32,6 +33,7 @@ export class AppComponent implements OnInit {
     if (!this.chatApiService.isLoggedIn()) {
       this.router.navigateByUrl("/login");
     }
+    
     return;
   }
 

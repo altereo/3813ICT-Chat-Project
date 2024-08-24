@@ -6,8 +6,9 @@ const storage = require('../datamodel/interface.js');
 const fetchGroups = (id) => {
 	let user = storage.getTable("users").find(user => user.id == id);
 	if (!user) return([]);
+	let groups = user.groups.map((id) => getGroup(id));
 
-	return(user.groups);
+	return(groups);
 }
 
 const getGroup = (id) => {
@@ -23,7 +24,7 @@ router
 	res.json({"status": "OK"})
 })
 
-// Get a list of group IDs the user belongs to.
+// Get a list of groups the user belongs to.
 .get('/groups/:userID', (req, res) => {
 	let id = req.params.userID;
 	res.json({

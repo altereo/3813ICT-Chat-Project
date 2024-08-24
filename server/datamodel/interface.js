@@ -2,7 +2,6 @@
 	ROLE VALUES
 	- SUPERADMIN
 	- ID::ADMIN
-	- ID::USER
 
 	ID Schema:
 	- User IDs are 9 digits.
@@ -12,11 +11,35 @@
 
 const users = [
 	{
-		"email": "evan.lee@gmail.com",
+		"email": "admin@gmail.com",
 		"username": "Superadmin",
 		"password": "123",
 		"roles": ["SUPERADMIN"],
 		"groups": [324123246245, 124532467324],
+		"id": 914976000
+	},
+	{
+		"email": "evan.lee@gmail.com",
+		"username": "Altereo",
+		"password": "123",
+		"roles": ["SUPERADMIN"],
+		"groups": [324123246245, 124532467324],
+		"id": 914976000
+	},
+	{
+		"email": "alice.margatroid@gmail.com",
+		"username": "rainbowPuppeteer",
+		"password": "123",
+		"roles": ["324123246245::ADMIN"],
+		"groups": [324123246245],
+		"id": 914976000
+	},
+	{
+		"email": "tim.price@gmail.com",
+		"username": "timmy_.",
+		"password": "123",
+		"roles": [],
+		"groups": [124532467324],
 		"id": 914976000
 	}
 ];

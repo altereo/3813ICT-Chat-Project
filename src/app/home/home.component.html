@@ -1,8 +1,23 @@
-<ul class="nav flex-column">
-	<li class="nav-item">
-		<a class="nav-link" routerLink="/servers/0" [routerLinkActive]="['active']">Test Server</a>
-	</li>
-	<li class="nav-item">
-		<a class="nav-link" routerLink="/servers/0" [routerLinkActive]="['active']">Dummy Server</a>
-	</li>
-</ul>
+<div class="main-window">
+	<div class="container group-list" id="group-list" ngbAccordion>
+		<div class="container group-list-header">
+			<h5>
+				Groups
+			</h5>
+		</div>
+		<div class="container group-item" *ngFor="let group of groups | async" ngbAccordionItem>
+			<h5 class="group-header" id="{{group.id}}" title="{{group.name}}" ngbAccordionHeader>
+				<button id="{{group.id}}" ngbAccordionButton>
+					{{(group.name.length > 30) ? (group.name | slice:0:30)+'...':(group.name)}}
+				</button>
+			</h5>
+			<div ngbAccordionCollapse>
+				<div class="container channel-item" *ngFor="let channel of group.channels">
+					<p class="channel-text" id="{{channel.id}}">{{channel.name}}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container chat-window">
+	</div> 
+</div>
