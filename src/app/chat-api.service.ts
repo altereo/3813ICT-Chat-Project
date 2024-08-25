@@ -29,6 +29,7 @@ export type Group = {
   channels: Channel[];
   users: number[];
   joinRequests: number[];
+  creator: number;
 }
 
 
@@ -78,6 +79,9 @@ export class ChatApiService {
     return(`${group?.name} :: ${channel?.name}` || "");
   }
 
+  getGroupsValue() {
+    return(this.groups$.value);
+  }
 
   // Return boolean if user is 'logged in'.
   isLoggedIn(): boolean {
@@ -142,6 +146,12 @@ export class ChatApiService {
   // Get messages in channel.
   getMessages(channelID: number) {
     return(this.httpClient.get(`${BACKEND_URL}/api/chat/messages/${channelID}`, httpOptions));
+  }
+
+
+  // Get username of user by id.
+  getUsername(id: number) {
+    return(this.httpClient.get(`${BACKEND_URL}/api/chat/users/username/${id}`, httpOptions));
   }
 
 

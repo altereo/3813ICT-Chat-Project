@@ -18,6 +18,13 @@ const getGroup = (id) => {
 	return (group);
 }
 
+const getUser = (id) => {
+	let user = storage.getTable("users").find(user => user.id == id);
+	if (!user) return({"username": ""});
+
+	return(user);
+}
+
 
 router
 .get('/', (req, res) => {
@@ -50,6 +57,16 @@ router
 	res.json({
 		"status": "NOT_IMPLEMENTED",
 		"messages": []
+	});
+	return;
+})
+
+// Get username of user by ID.
+.get('/users/username/:userID', (req, res) => {
+	let userID = req.params.userID;
+	res.json({
+		"status": "OK",
+		"username": getUser(userID).username || ""
 	});
 	return;
 })

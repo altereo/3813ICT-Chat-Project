@@ -1,6 +1,6 @@
 /*
 	ROLE VALUES
-	- SUPERADMIN
+	- SUPERADMIN	
 	- ID::ADMIN
 
 	ID Schema:
@@ -31,7 +31,7 @@ var users = [
 		"username": "rainbowPuppeteer",
 		"password": "123",
 		"roles": ["324123246245::ADMIN"],
-		"groups": [324123246245],
+		"groups": [324123246245, 124532467324],
 		"id": 663242268
 	},
 	{
@@ -59,7 +59,8 @@ const groups = [
 			}
 		],
 		"users": [914976000, 535134682, 663242268],
-		"joinRequests": []
+		"joinRequests": [],
+		"creator": 663242268
 	},
 	{
 		"id": 124532467324,
@@ -75,7 +76,8 @@ const groups = [
 			}
 		],
 		"users": [914976000, 535134682, 127845683],
-		"joinRequests": []
+		"joinRequests": [],
+		"creator": 535134682
 	}
 ]
 

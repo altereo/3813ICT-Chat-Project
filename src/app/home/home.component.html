@@ -1,3 +1,27 @@
+<ng-template #content let-offcanvas>
+	<div class="offcanvas-header">
+		<h4 class="offcanvas-title" id="offcanvas-basic-title">Manage Group - {{(groups | getServerByID: targetID)?.name}}</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+	</div>
+	<div class="offcanvas-body">
+		<h5>Users</h5>
+		<div class="mb-3">
+			<div class="user-list-item" *ngFor="let userID of targetGroup?.users">
+				{{(userID | getUsernameByID | async)?.username}}
+				<span class="toolbar">
+					<button class="btn btn-link user-action-button" title="Promote/Demote">
+						<i class="bi bi-arrow-down-up"></i>
+					</button>
+					<button class="btn btn-link user-action-button" title="Ban">
+						<i class="bi bi-ban"></i>
+					</button>
+				</span>
+			</div>
+		</div>
+	</div>
+</ng-template>
+
+
 <div class="main-window">
 	<div class="container group-list" id="group-list" ngbAccordion>
 		<div class="container group-list-header">
@@ -9,6 +33,9 @@
 			<h5 class="group-header" id="{{group.id}}" title="{{group.name}}" ngbAccordionHeader>
 				<button id="{{group.id}}" ngbAccordionButton>
 					{{(group.name.length > 30) ? (group.name | slice:0:30)+'...':(group.name)}}
+					<button class="server-settings-button btn btn-link" (click)="openSettings(content, group.id)" title="Manage group" ngbAccordionToggle>
+						<i class="bi bi-sliders"></i>
+					</button>
 				</button>
 			</h5>
 			<div ngbAccordionCollapse>

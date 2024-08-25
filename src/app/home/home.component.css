@@ -17,6 +17,11 @@
   	box-shadow: none;
 }
 
+.accordion-button::after {
+	margin-left: 0;
+	filter: saturate(0%);
+}
+
 .channel-text {
 	margin-bottom: 3px;
 }
@@ -74,4 +79,29 @@
 
 .group-list-header > h5 {
 	font-weight: bold;
+}
+
+.server-settings-button {
+	margin-left: auto;
+	position: relative;
+	filter: saturate(0%);
+	line-height: 0;
+}
+
+.user-list-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.btn.btn-link > i {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.btn.btn-link:active > i {
+	color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.btn.btn-link:hover > i {
+	color: white;
 }
