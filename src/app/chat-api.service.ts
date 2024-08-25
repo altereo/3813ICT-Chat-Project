@@ -28,6 +28,7 @@ export type Group = {
   name: string;
   channels: Channel[];
   users: number[];
+  joinRequests: number[];
 }
 
 
@@ -99,6 +100,19 @@ export class ChatApiService {
         this.store("user", { "valid": false });
       }
     });
+  }
+
+  createAccount(username: string, email: string, password: string) {
+    let body = {
+      username,
+      email,
+      password
+    };
+
+    // Users of this method should subscribe to this,
+    // then upon success, run the authorise method with the supplied
+    // details.
+    return(this.httpClient.post(`${BACKEND_URL}/api/auth/create`, body, httpOptions));
   }
 
   // Clear user data from session (logout).

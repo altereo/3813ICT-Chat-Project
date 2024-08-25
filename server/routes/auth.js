@@ -18,6 +18,13 @@ const validate = (email, password) => {
 };
 
 
+router.post('/create', (req, res) => {
+	let data = req.body;
+	res.json({
+		"status": storage.tryCreateUser(data.username, data.email, data.password)
+	});
+});
+
 router.post('/', (req, res) => {
 	let authData = req.body;
 	res.json({

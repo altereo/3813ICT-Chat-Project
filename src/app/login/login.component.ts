@@ -16,24 +16,52 @@ import { ChatApiService } from '../chat-api.service';
 export class LoginComponent implements OnInit {
   private user: any = {};
 
-  submitted = false;
-  error = false;
+  loginSubmitted = false;
+  loginError = false;
+
+  registerSubmitted = false;
+  registerError = false;
+
+  username = "";
+  newEmail = "";
+  newPassword = "";
 
   email = "";
   password = "";
 
   attemptLogon() {
-    this.submitted = true;
+    this.loginSubmitted = true;
     this.chatApiService.authorise(this.email, this.password);
 
     return;
   }
 
-  onChange() {
-    this.submitted = false;
-    this.error = false;
+  attemptCreateAccount() {
+    this.registerSubmitted = true;
+    this.chatApiService.createAccount(this.username, this.newEmail, this.newPassword)
+    .subscribe((data: any) => {
+      if (data?.status == "OK") {
+        this.chatApiService.authorise(this.newEmail, this.newPassword);
+        return;
+      }
+
+      this.registerError = true;
+      return;
+    });
 
     return;
+  }
+
+  onChange() {
+    this.loginSubmitted = false;
+    this.loginError = false;
+
+    return;
+  }
+
+  onRegChange() {
+    this.registerSubmitted = false;
+    this.registerError = false;
   }
 
   ngOnInit() {
@@ -45,7 +73,7 @@ export class LoginComponent implements OnInit {
         return;
       }
 
-      this.error = true;
+      this.loginError = true;
     });
     return;
   }

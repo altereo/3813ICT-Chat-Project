@@ -1,19 +1,49 @@
 <div class="container-lg login-modal">
-	<form class="container needs-validation" id="login-form" (input)="onChange()" novalidate>
-		<h4 id="login-header">Welcome back!</h4>
-		<div class="mb-3">
-			<label for="email" class="form-label">Email</label>
-			<input type="email" [(ngModel)]="email" name="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && error }" id="email" placeholder="name@example.com" required>
+	<nav>
+		<div class="nav nav-pills" id="pills-tab" role="tablist">
+			<button class="nav-link active" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#login-form" type="button" role="tab">Login</button>
+			<span class="separator"></span>
+			<button class="nav-link" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#register-form" type="button" role="tab">Register</button>
 		</div>
-		<div class="mb-3">
-			<label for="password" class="form-label">Password</label>
-			<input type="password" [(ngModel)]="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && error }" id="password" required>
-			<div class="invalid-feedback">
-				The email or password was incorrect.
+	</nav>
+	<div class="tab-content" id="pills-tabContent">
+		<form class="tab-pane fade show active container needs-validation" id="login-form" (input)="onChange()" role="tabpanel" novalidate>
+			<h4 id="login-header">Welcome back!</h4>
+			<div class="mb-3">
+				<label for="email" class="form-label">Email</label>
+				<input type="email" [(ngModel)]="email" name="email" class="form-control" [ngClass]="{ 'is-invalid': loginSubmitted && loginError }" id="email" placeholder="name@example.com" required>
 			</div>
-		</div>
-		<div class="mb-3">
-			<button type="submit" class="btn btn-primary btn-block" (click)="attemptLogon()">Login</button>
-		</div>
-	</form>
+			<div class="mb-3">
+				<label for="password" class="form-label">Password</label>
+				<input type="password" [(ngModel)]="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': loginSubmitted && loginError }" id="password" required>
+				<div class="invalid-feedback">
+					The email or password was incorrect.
+				</div>
+			</div>
+			<div class="mb-3">
+				<button type="submit" class="btn btn-primary btn-block" (click)="attemptLogon()">Login</button>
+			</div>
+		</form>
+		<form class="tab-pane fade container needs-validation" (input)="onRegChange()" id="register-form" role="tabpanel" novalidate>
+			<h4 id="login-header">Create a new Account!</h4>
+			<div class="mb-3">
+				<label for="username" class="form-label">Username</label>
+				<input type="text" [(ngModel)]="username" name="username" class="form-control" [ngClass]="{ 'is-invalid': registerSubmitted && registerError }" id="username" required>
+			</div>
+			<div class="mb-3">
+				<label for="email" class="form-label">Email</label>
+				<input type="email" [(ngModel)]="newEmail" name="email" class="form-control" [ngClass]="{ 'is-invalid': registerSubmitted && registerError }" id="email" placeholder="name@example.com" required>
+			</div>
+			<div class="mb-3">
+				<label for="password" class="form-label">Password</label>
+				<input type="password" [(ngModel)]="newPassword" name="password" class="form-control" [ngClass]="{ 'is-invalid': registerSubmitted && registerError }" id="password" required>
+				<div class="invalid-feedback">
+					Registration failed. Please ensure all fields are complete and that your email is not already associated with an account.
+				</div>
+			</div>
+			<div class="mb-3">
+				<button type="submit" class="btn btn-primary btn-block" (click)="attemptCreateAccount()">Register</button>
+			</div>
+		</form>
+	</div>
 </div>

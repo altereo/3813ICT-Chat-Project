@@ -9,7 +9,7 @@
 	- Channel IDs are 8 digits.
 */
 
-const users = [
+var users = [
 	{
 		"email": "admin@gmail.com",
 		"username": "Superadmin",
@@ -58,7 +58,8 @@ const groups = [
 				"name": "general-2"
 			}
 		],
-		"users": [914976000, 535134682, 663242268]
+		"users": [914976000, 535134682, 663242268],
+		"joinRequests": []
 	},
 	{
 		"id": 124532467324,
@@ -73,7 +74,8 @@ const groups = [
 				"name": "homework-help"
 			}
 		],
-		"users": [914976000, 535134682, 127845683]
+		"users": [914976000, 535134682, 127845683],
+		"joinRequests": []
 	}
 ]
 
@@ -87,4 +89,23 @@ function getTable(type) {
 	return(tableSet[type]);
 }
 
-module.exports = { getTable };
+function tryCreateUser(username, email, password) {
+	let userCheck = users.find(cred => cred.email === email);	// Check for existing user with that email.
+	if (userCheck || !email || !username || !password) {
+		return("ERROR");
+	} else {
+		let newUser = {
+			"email": email,
+			"username": username,
+			"password": password,
+			"roles": [],
+			"groups": [],
+			"id": Math.floor(100000000 + Math.random() * 900000000) // Might risk ID collision but who cares.
+		}
+
+		users.push(newUser);
+		return("OK");
+	}
+}
+
+module.exports = { getTable, tryCreateUser };

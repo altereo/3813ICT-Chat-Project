@@ -54,4 +54,18 @@ router
 	return;
 })
 
+// Send message to channel as user.
+// Requires:
+// 	 groupID,
+//   channelID,
+//   userID,
+//   message
+.post('/messages/send', (req, res) => {
+	let messageData = req.body;
+	res.json({
+		"status": "NOT_IMPLEMENTED"
+	});
+	return;
+});
+
 module.exports = router;
