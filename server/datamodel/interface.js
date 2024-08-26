@@ -118,9 +118,43 @@ function removeGroupFromUser(userID, groupID) {
 	if (groupIndex !== -1) {
 		let groupsIndex = groups.findIndex((group) => group.id === groupID);
 		users[userIndex].groups = users[userIndex].groups.splice(groupIndex, 1);
+		users[userIndex].roles.splice(
+			users[userIndex].roles.findIndex((role) => role.startsWith(`${groupID}::`)),
+			1
+		);
 		groups[groupsIndex].users.splice(groups[groupsIndex].users.indexOf(userID));
 	}
 	return;
 }
 
-module.exports = { getTable, tryCreateUser, removeGroupFromUser };
+function removeRequest(userID, groupID) {
+	let groupIndex = groups.findIndex((group) => group.id === groupID);
+	let requestIndex = groups[groupIndex].joinRequests.findIndex((req) => req === userID);
+	if (groupIndex === -1 || requestIndex === -1) return;
+
+	groups[groupIndex].joinRequests.splice(requestIndex, 1);
+	console.log(groups, requestIndex, groupIndex);
+	return;
+}
+
+function addUserToGroup(userID, groupID) {
+	let userIndex = users.findIndex((user) => user.id === userID);
+	let groupIndex = groups.findIndex((group) => group.id === groupID);
+	if (userIndex === -1 || groupIndex === -1) return;
+
+	if (!users[userIndex].groups.includes(groupID)) {
+		users[userIndex].groups.push(groupID);
+	}
+
+	if (!groups[groupIndex].users.includes(userID)) {
+		groups[groupIndex].users.push(userID);
+	}
+	return;
+}
+
+function renameGroup(groupID, newName) {
+	groups[groups.findIndex((group) => group.id === groupID)].name = newName;
+	return;
+}
+
+module.exports = { getTable, tryCreateUser, removeGroupFromUser, renameGroup, addUserToGroup, removeRequest };

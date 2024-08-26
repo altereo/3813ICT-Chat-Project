@@ -159,14 +159,37 @@ export class ChatApiService {
     return(this.httpClient.get(`${BACKEND_URL}/api/chat/users/roles/${id}`, httpOptions));
   }
 
-
+  // Remove a user from a given server.
   removeUserFromServer(targetID: number, serverID: number, userID: number) {
     let body = {
       "user": targetID,
       "group": serverID,
       "executor": userID
-    }
+    };
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/remove`, body, httpOptions));
+  }
+
+  // Rename a given group.
+  renameGroup(groupID: number, newName: string, userID: number) {
+    let body = {
+      "group": groupID,
+      "newName": newName,
+      "executor": userID
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/rename`, body, httpOptions));
+  }
+
+  // Approves or rejects join requests.
+  approveRejectRequest(userID: number, groupID: number, state: boolean, executor: number) {
+    let body = {
+      "user": userID,
+      "group": groupID,
+      "state": state,
+      "executor": executor
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/modifyRequest`, body, httpOptions));
   }
 
   // Getters for any multicast observables we have.

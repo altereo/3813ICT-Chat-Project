@@ -62,8 +62,27 @@ export class HomeComponent implements OnInit {
     return;
   }
 
+  approveRejectUser(state: boolean, id: number) {
+    this.chatApiService.approveRejectRequest(id, this.targetID, state, this.userID).subscribe((data: any) => {
+      this.chatApiService.getGroups(this.userID);
+      return;
+    });
+    return;
+  }
+
   kickUser(id: number) {
     this.chatApiService.removeUserFromServer(id, this.targetGroup?.id || -1, this.userID).subscribe((data: any) => {
+      if (data.status === "OK") {
+        this.chatApiService.getGroups(this.userID);
+        return;
+      }
+    });
+    return;
+  }
+
+  submitRenameGroup() {
+    if (this.groupName === "") return;
+    this.chatApiService.renameGroup(this.targetID, this.groupName, this.userID).subscribe((data: any) => {
       if (data.status === "OK") {
         this.chatApiService.getGroups(this.userID);
         return;

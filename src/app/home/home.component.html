@@ -1,13 +1,13 @@
 <ng-template #groupModal let-offcanvas>
 	<div class="offcanvas-header">
-		<h4 class="offcanvas-title" id="offcanvas-basic-title">Manage Group - {{(groups | getServerByID: targetID)?.name}}</h4>
+		<h4 class="offcanvas-title" id="offcanvas-basic-title">Manage Group</h4>
 		<button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
 	</div>
 	<div class="offcanvas-body">
 		<h5>Group Name</h5>
 		<div class="mb-4 group-name-form">
 			<input [(ngModel)]="groupName" class="group-name-input" type="text" name="group-name" id="group-name">
-			<button class="group-name-input" type="submit">Change</button>
+			<button class="group-name-input" type="submit" (click)="submitRenameGroup()">Change</button>
 		</div>
 		<h5>Users</h5>
 		<div class="mb-4 list-view" id="user-list">
@@ -17,10 +17,10 @@
 					<span>{{userID | getUsernameByID | async}}</span>
 				</span>
 				<span class="toolbar">
-					<button class="btn btn-link user-action-button" title="Approve">
+					<button (click)="approveRejectUser(true, userID)" class="btn btn-link user-action-button" title="Approve">
 						<i class="bi bi-check-circle"></i>
 					</button>
-					<button class="btn btn-link user-action-button" title="Deny">
+					<button (click)="approveRejectUser(false, userID)" class="btn btn-link user-action-button" title="Deny">
 						<i class="bi bi-x-circle"></i>
 					</button>
 				</span>
@@ -34,7 +34,7 @@
 					<button class="btn btn-link user-action-button" title="Promote/Demote">
 						<i class="bi bi-arrow-down-up"></i>
 					</button>
-					<button class="btn btn-link user-action-button" title="Kick" [disabled]="(userID | getRoleByID : targetID | async) == 'Superadmin'" (click)="kickUser(userID)">
+					<button class="btn btn-link user-action-button" title="Kick" [disabled]="(userID | getRoleByID : targetID | async) == 'Operator'" (click)="kickUser(userID)">
 						<i class="bi bi-ban"></i>
 					</button>
 				</span>

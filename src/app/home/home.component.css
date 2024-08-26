@@ -110,6 +110,10 @@
 	color: white;
 }
 
+.btn.btn-link:disabled > i {
+	color: rgba(255, 255, 255, 0.5) !important;
+}
+
 .subtle-text {
 	color: gray;
 }
@@ -149,11 +153,13 @@ input.group-name-input {
 	width: calc(100% - 86px);
 	border-radius: 4px 0 0 4px;
 	padding-left: 16px;
+	border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 button.group-name-input {
 	width: 86px;
 	border-radius: 0 4px 4px 0;
+	color: var(--bs-body-color);
 }
 
 button.group-name-input:hover {

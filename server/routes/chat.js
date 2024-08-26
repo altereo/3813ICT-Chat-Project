@@ -88,6 +88,53 @@ router
 	}
 })
 
+// Rename group.
+.post('/group/rename', (req, res) => {
+	let data = req.body;
+	if (getHighestForGroup(data.executor, data.group) >= 1) {
+		if (data.newName === "") {
+			res.json({
+				"status": "ERROR",
+				"message": "Group name cannot be empty."
+			});
+			return;
+		}
+
+		storage.renameGroup(data.group, data.newName);
+		res.json({
+			"status": "OK",
+			"message": ""
+		});
+		return;
+	}
+})
+
+// Approve/reject request to join.
+// Needs: user, group, state(approve/reject), executor
+.post('/group/modifyRequest', (req, res) => {
+	let data = req.body;
+	if (getHighestForGroup(data.executor, data.group) >= 1) {
+		if (data.state === true) {
+			storage.removeRequest(data.user, data.group);
+			storage.addUserToGroup(data.user, data.group);
+		} else {
+			storage.removeRequest(data.user, data.group);
+		}
+
+		res.json({
+			"status": "OK",
+			"message": ""
+		})
+		return;
+	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "Insufficient privelages."
+	});
+	return;
+})
+
 // Get all messages in a channel.
 .get('/messages/:channelID', (req, res) => {
 	let channelID = req.params.channelID;

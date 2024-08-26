@@ -18,7 +18,7 @@ export class GetRoleByIDPipe implements PipeTransform {
         if (roleList.length === 0) {
           observer.next("User");
         } else if (roleList.includes("SUPERADMIN")) {
-          observer.next("Superadmin");
+          observer.next("Operator");
         } else if (roleList.find((role: string) => role.startsWith(`${groupID}::`))) {
           observer.next("Admin");
         } else {
