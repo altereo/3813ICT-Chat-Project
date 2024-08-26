@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 
 import { ChatApiService } from '../chat-api.service';
 
@@ -9,8 +9,13 @@ import { ChatApiService } from '../chat-api.service';
 })
 export class GetUsernameByIDPipe implements PipeTransform {
 
-  transform(id: number): Observable<any> {
-    return(this.chatApiService.getUsername(id));
+  transform(id: number): Observable<string> {
+    return(Observable.create((observer: Observer<string>) => {
+      this.chatApiService.getUsername(id).subscribe((data: any) => {
+        observer.next(data.username);
+        observer.complete();
+      });
+    }));
   }
 
   constructor(private chatApiService: ChatApiService) { }

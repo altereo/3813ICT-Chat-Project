@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Observer } from 'rxjs';
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
@@ -48,7 +48,7 @@ export class ChatApiService {
   });
 
   private readonly groups$: BehaviorSubject<Group[]> = new BehaviorSubject<Group[]>([]);
-
+  private usernameCache: { [id: number]: string } = {};
 
   // Store data in sessionStorage.
   private store(key: string, data: any) {
@@ -152,6 +152,11 @@ export class ChatApiService {
   // Get username of user by id.
   getUsername(id: number) {
     return(this.httpClient.get(`${BACKEND_URL}/api/chat/users/username/${id}`, httpOptions));
+  }
+
+  // Get roles of user by id.
+  getRoles(id: number) {
+    return(this.httpClient.get(`${BACKEND_URL}/api/chat/users/roles/${id}`, httpOptions));
   }
 
 

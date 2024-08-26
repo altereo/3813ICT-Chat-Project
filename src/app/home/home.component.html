@@ -4,10 +4,32 @@
 		<button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
 	</div>
 	<div class="offcanvas-body">
+		<h5>Group Name</h5>
+		<div class="mb-4 group-name-form">
+			<input [(ngModel)]="groupName" class="group-name-input" type="text" name="group-name" id="group-name">
+			<button class="group-name-input" type="submit">Change</button>
+		</div>
 		<h5>Users</h5>
-		<div class="mb-3">
+		<div class="mb-4 list-view" id="user-list">
+			<div class="user-list-item" *ngFor="let userID of targetGroup?.joinRequests">
+				<span class="user-name-display">
+					<span class="subtle-text">Request :: </span>
+					<span>{{userID | getUsernameByID | async}}</span>
+				</span>
+				<span class="toolbar">
+					<button class="btn btn-link user-action-button" title="Approve">
+						<i class="bi bi-check-circle"></i>
+					</button>
+					<button class="btn btn-link user-action-button" title="Deny">
+						<i class="bi bi-x-circle"></i>
+					</button>
+				</span>
+			</div>
 			<div class="user-list-item" *ngFor="let userID of targetGroup?.users">
-				{{(userID | getUsernameByID | async)?.username}}
+				<span class="user-name-display">
+					<span class="subtle-text">{{userID | getRoleByID : targetID | async}} :: </span>
+					<span>{{userID | getUsernameByID | async}}</span>
+				</span>
 				<span class="toolbar">
 					<button class="btn btn-link user-action-button" title="Promote/Demote">
 						<i class="bi bi-arrow-down-up"></i>
@@ -17,6 +39,10 @@
 					</button>
 				</span>
 			</div>
+		</div>
+		<h5>Actions</h5>
+		<div class="d-grid gap-3 mb-3">
+			<button class="btn btn-outline-danger">Delete Group</button>
 		</div>
 	</div>
 </ng-template>
@@ -32,7 +58,7 @@
 		<div class="container group-item" *ngFor="let group of groups | async" ngbAccordionItem>
 			<h5 class="group-header" id="{{group.id}}" title="{{group.name}}" ngbAccordionHeader>
 				<button id="{{group.id}}" ngbAccordionButton>
-					{{(group.name.length > 30) ? (group.name | slice:0:30)+'...':(group.name)}}
+					{{group.name | truncate : 30}}
 					<button class="server-settings-button btn btn-link" (click)="openSettings(content, group.id)" title="Manage group" ngbAccordionToggle>
 						<i class="bi bi-sliders"></i>
 					</button>

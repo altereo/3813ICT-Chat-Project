@@ -92,6 +92,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .btn.btn-link > i {
@@ -104,4 +105,61 @@
 
 .btn.btn-link:hover > i {
 	color: white;
+}
+
+.subtle-text {
+	color: gray;
+}
+
+.user-name-display {
+	width: 252px;
+	max-width: 252px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.list-view {
+	background-color: rgba(0, 0, 0, 0.4);
+	padding: 4px;
+	padding-left: 16px;
+	padding-right: 8px;
+	overflow: hidden;
+	overflow-y: scroll;
+	border-radius: 4px;
+}
+
+.list-view#user-list {
+	height: 256px;
+}
+
+
+.group-name-input {
+	background-color: rgba(0, 0, 0, 0.4);
+	padding: 8px;
+	border: none;
+	box-shadow: none;
+	outline: none;
+}
+
+input.group-name-input {
+	width: calc(100% - 86px);
+	border-radius: 4px 0 0 4px;
+}
+
+button.group-name-input {
+	width: 86px;
+	border-radius: 0 4px 4px 0;
+}
+
+button.group-name-input:hover {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+button.group-name-input:active {
+	background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.offcanvas-body {
+	padding-right: calc(1rem + 8px);
 }

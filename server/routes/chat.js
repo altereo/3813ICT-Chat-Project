@@ -71,6 +71,16 @@ router
 	return;
 })
 
+// Get roles of user by ID.
+.get('/users/roles/:userID', (req, res) => {
+	let userID = req.params.userID;
+	res.json({
+		"status": "OK",
+		"roles": getUser(userID).roles || []
+	});
+	return;
+})
+
 // Send message to channel as user.
 // Requires:
 // 	 groupID,

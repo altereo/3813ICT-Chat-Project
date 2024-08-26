@@ -59,7 +59,7 @@ const groups = [
 			}
 		],
 		"users": [914976000, 535134682, 663242268],
-		"joinRequests": [],
+		"joinRequests": [127845683],
 		"creator": 663242268
 	},
 	{
