@@ -163,3 +163,14 @@ button.group-name-input:active {
 .offcanvas-body {
 	padding-right: calc(1rem + 8px);
 }
+
+.channel-name-input {
+	background-color: transparent;
+	border-color: transparent;
+	outline: none;
+	box-shadow: none;
+	height: 37.6px;
+	color: var(--bs-body-color);
+	padding-left: 0;
+	margin-left: 0;
+}
