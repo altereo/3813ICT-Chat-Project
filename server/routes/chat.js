@@ -25,6 +25,20 @@ const getUser = (id) => {
 	return(user);
 }
 
+const getHighestForGroup = (userID, groupID) => {
+	if (isSuperAdmin(userID)) return(2);
+
+	let user = getUser(userID);
+	if (user.roles.length === 0) return(0);
+
+	if (user.roles.find((role) => role.startsWith(`${groupID}::`))) return(1);
+
+	return(0);
+}
+
+const isSuperAdmin = (userID) => {
+	return(getUser(userID).roles.includes("SUPERADMIN"));
+}
 
 router
 .get('/', (req, res) => {
@@ -49,6 +63,29 @@ router
 		"group": getGroup(groupID)
 	});
 	return;
+})
+
+// Remove user from group.
+.post('/group/remove', (req, res) => {
+	let data = req.body;
+	let executor = getUser(data.executor);
+
+	if (getHighestForGroup(data.executor, data.group) >= 1) {
+		if (getHighestForGroup(data.user, data.group) === 2) {
+			res.json({
+				"status": "ERROR",
+				"message": "Cannot remove superuser from group."
+			});
+			return;
+		}
+
+		storage.removeGroupFromUser(data.user, data.group);
+		res.json({
+			"status": "OK",
+			"message": ""
+		});
+		return;
+	}
 })
 
 // Get all messages in a channel.

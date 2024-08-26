@@ -75,6 +75,9 @@
 .group-list-header {
 	border-bottom: 1px solid var(--subtlegray);
 	padding: 16px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .group-list-header > h5 {
@@ -145,6 +148,7 @@
 input.group-name-input {
 	width: calc(100% - 86px);
 	border-radius: 4px 0 0 4px;
+	padding-left: 16px;
 }
 
 button.group-name-input {
@@ -173,4 +177,9 @@ button.group-name-input:active {
 	color: var(--bs-body-color);
 	padding-left: 0;
 	margin-left: 0;
+}
+
+.header-button {
+	font-size: 20px;
+	line-height: 0;
 }

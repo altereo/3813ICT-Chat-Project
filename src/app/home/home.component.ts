@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, TemplateRef } from '@angular/core';
+import { Component, OnInit, Inject, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, RouterLink, RouterOutlet, Router } from '@angular/router';
@@ -53,16 +53,31 @@ export class HomeComponent implements OnInit {
   targetGroup: Group | undefined = undefined;
   groupName: string = "";
 
+  updateCachedGroup() {
+    let groupsList = this.chatApiService.getGroupsValue();
+    this.targetGroup = groupsList.find((group: Group) => group.id === this.targetID);
+    this.groupName = this.targetGroup?.name || "";
+
+    this.cdr.detectChanges();
+    return;
+  }
+
+  kickUser(id: number) {
+    this.chatApiService.removeUserFromServer(id, this.targetGroup?.id || -1, this.userID).subscribe((data: any) => {
+      if (data.status === "OK") {
+        this.chatApiService.getGroups(this.userID);
+        return;
+      }
+    });
+    return;
+  }
 
   openSettings(content: TemplateRef<any>, id: number) {
-    let groupsList = this.chatApiService.getGroupsValue();
-
     this.targetID = id;
-    this.targetGroup = groupsList.find((group: Group) => group.id === id);
-    this.groupName = this.targetGroup?.name || "";
+    this.chatApiService.getGroups(this.userID);
     
     this.offCanvasService.open(content).result.then((result: any) => {
-      console.debug(this);
+      console.debug(result);
     });
     return;
   }
@@ -76,13 +91,24 @@ export class HomeComponent implements OnInit {
       }, 0);
 
       if (this.userID !== -1) {
-        this.chatApiService.getGroups(this.userID)
+        this.chatApiService.getGroups(this.userID);
       }
+
+      this.groups.subscribe((data: any) => {
+        if (this.targetID !== -1) {
+          this.updateCachedGroup();
+        }
+      })
     }
     return;
   }
 
-  constructor (private router:Router, private chatApiService: ChatApiService, private offCanvasService: NgbOffcanvas) {
+  constructor (
+    private router:Router,
+    private chatApiService: ChatApiService,
+    private offCanvasService: NgbOffcanvas,
+    private cdr: ChangeDetectorRef
+  ) {
     this.groups = this.chatApiService.groups;
   }
 }

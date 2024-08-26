@@ -1,4 +1,4 @@
-<ng-template #content let-offcanvas>
+<ng-template #groupModal let-offcanvas>
 	<div class="offcanvas-header">
 		<h4 class="offcanvas-title" id="offcanvas-basic-title">Manage Group - {{(groups | getServerByID: targetID)?.name}}</h4>
 		<button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
@@ -34,7 +34,7 @@
 					<button class="btn btn-link user-action-button" title="Promote/Demote">
 						<i class="bi bi-arrow-down-up"></i>
 					</button>
-					<button class="btn btn-link user-action-button" title="Ban">
+					<button class="btn btn-link user-action-button" title="Kick" [disabled]="(userID | getRoleByID : targetID | async) == 'Superadmin'" (click)="kickUser(userID)">
 						<i class="bi bi-ban"></i>
 					</button>
 				</span>
@@ -68,12 +68,15 @@
 			<h5>
 				Groups
 			</h5>
+			<button class="btn btn-link header-button">
+				<i class="bi bi-plus-lg"></i>
+			</button>
 		</div>
 		<div class="container group-item" *ngFor="let group of groups | async" ngbAccordionItem>
 			<h5 class="group-header" id="{{group.id}}" title="{{group.name}}" ngbAccordionHeader>
 				<button id="{{group.id}}" ngbAccordionButton>
 					{{group.name | truncate : 30}}
-					<button class="server-settings-button btn btn-link" (click)="openSettings(content, group.id)" title="Manage group" ngbAccordionToggle>
+					<button class="server-settings-button btn btn-link" (click)="openSettings(groupModal, group.id)" title="Manage group" ngbAccordionToggle>
 						<i class="bi bi-sliders"></i>
 					</button>
 				</button>

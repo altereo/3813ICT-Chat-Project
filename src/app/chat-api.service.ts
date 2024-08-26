@@ -160,6 +160,15 @@ export class ChatApiService {
   }
 
 
+  removeUserFromServer(targetID: number, serverID: number, userID: number) {
+    let body = {
+      "user": targetID,
+      "group": serverID,
+      "executor": userID
+    }
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/remove`, body, httpOptions));
+  }
+
   // Getters for any multicast observables we have.
   get user(): Observable<User> {
     return(this.user$.asObservable());

@@ -110,4 +110,17 @@ function tryCreateUser(username, email, password) {
 	}
 }
 
-module.exports = { getTable, tryCreateUser };
+function removeGroupFromUser(userID, groupID) {
+	let userIndex = users.findIndex((user) => user.id === userID);
+	if (userIndex === -1) return;
+
+	let groupIndex = users[userIndex].groups.indexOf(groupID);
+	if (groupIndex !== -1) {
+		let groupsIndex = groups.findIndex((group) => group.id === groupID);
+		users[userIndex].groups = users[userIndex].groups.splice(groupIndex, 1);
+		groups[groupsIndex].users.splice(groups[groupsIndex].users.indexOf(userID));
+	}
+	return;
+}
+
+module.exports = { getTable, tryCreateUser, removeGroupFromUser };
