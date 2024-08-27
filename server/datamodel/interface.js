@@ -179,6 +179,12 @@ function deleteChannel(groupID, channelID) {
 	return;
 }
 
+function deleteGroup(groupID) {
+	groups.splice(groups.findIndex((group) => group.id === groupID), 1);
+
+	return;
+}
+
 module.exports = { 
 	getTable,
 	tryCreateUser,
@@ -187,5 +193,6 @@ module.exports = {
 	addUserToGroup,
 	removeRequest,
 	createChannel,
-	deleteChannel
+	deleteChannel,
+	deleteGroup
 };

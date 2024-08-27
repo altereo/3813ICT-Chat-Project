@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, TemplateRef, ChangeDetectorRef } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, RouterLink, RouterOutlet, Router } from '@angular/router';
-import { NgbAccordionModule, NgbOffcanvas, OffcanvasDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAccordionModule, NgbOffcanvas, OffcanvasDismissReasons, NgbOffcanvasRef } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 
 import { TruncatePipe } from '../pipes/truncate.pipe';
@@ -53,6 +53,7 @@ export class HomeComponent implements OnInit {
   targetGroup: Group | undefined = undefined;
 
   // Form stuff.
+  private offCanvasRef: NgbOffcanvasRef | null = null;
   groupName: string = "";
   channelName: string = "";
 
@@ -131,13 +132,28 @@ export class HomeComponent implements OnInit {
     return;
   }
 
+  deleteGroup() {
+    this.chatApiService.requestDeleteGroup(
+      this.targetID,
+      this.userID
+    ).subscribe((data: any) => {
+      if (data.status === "OK") {
+        this.chatApiService.getGroups(this.userID);
+        if (this.offCanvasRef) {
+          this.offCanvasRef.close();
+        }
+
+        this.router.navigateByUrl("/home");
+      }
+      return;
+    })
+  }
+
   openSettings(content: TemplateRef<any>, id: number) {
     this.targetID = id;
     this.chatApiService.getGroups(this.userID);
     
-    this.offCanvasService.open(content).result.then((result: any) => {
-      console.debug(result);
-    });
+    this.offCanvasRef = this.offCanvasService.open(content);
     return;
   }
 

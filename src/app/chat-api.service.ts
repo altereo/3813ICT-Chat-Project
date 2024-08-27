@@ -214,6 +214,15 @@ export class ChatApiService {
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/channels/remove`, body, httpOptions));
   }
 
+  requestDeleteGroup(groupID: number, executor: number) {
+    let body = {
+      "group": groupID,
+      "executor": executor
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/delete`, body, httpOptions));
+  }
+
   // Getters for any multicast observables we have.
   get user(): Observable<User> {
     return(this.user$.asObservable());

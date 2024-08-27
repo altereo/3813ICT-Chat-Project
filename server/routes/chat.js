@@ -8,7 +8,7 @@ const fetchGroups = (id) => {
 	if (!user) return([]);
 	let groups = user.groups.map((id) => getGroup(id));
 
-	return(groups);
+	return(groups.filter((val) => Object.keys(val).length !== 0));
 }
 
 const getGroup = (id) => {
@@ -184,6 +184,27 @@ router
 		});
 		return;
 	}
+})
+
+// delete a group.
+// takes group, executor
+.post('/group/delete', (req, res) => {
+	let data = req.body;
+	if (getHighestForGroup(data.executor, data.group) >= 1) {
+		let groupObj = getGroup(data.group);
+		storage.deleteGroup(data.group);
+		res.json({
+			"status": "OK",
+			"message": ""
+		});
+		return;
+	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "You do not have the ability to perform this action."
+	});
+	return;
 })
 
 // Get all messages in a channel.
