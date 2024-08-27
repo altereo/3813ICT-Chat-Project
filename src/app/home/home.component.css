@@ -183,6 +183,7 @@ button.group-name-input:active {
 	color: var(--bs-body-color);
 	padding-left: 0;
 	margin-left: 0;
+	width: 100%;
 }
 
 .header-button {

@@ -45,13 +45,13 @@
 			<div class="user-list-item" *ngFor="let channel of targetGroup?.channels">
 				<span class="user-name-display">{{channel.name}}</span>
 				<span class="toolbar">
-					<button class="btn btn-link user-action-button" title="Delete">
+					<button class="btn btn-link user-action-button" (click)="deleteChannel(channel.id)" title="Delete">
 						<i class="bi bi-x-circle"></i>
 					</button>
 				</span>
 			</div>
 			<div class="user-list-item">
-				<input class="channel-name-input" placeholder="New channel">
+				<input class="channel-name-input" [(ngModel)]="channelName" (keyup.enter)="submitCreateChannel()" (input)="onChannelInput($event)" placeholder="New channel">
 			</div>
 		</div>
 		<h5>Actions</h5>

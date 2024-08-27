@@ -192,6 +192,28 @@ export class ChatApiService {
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/modifyRequest`, body, httpOptions));
   }
 
+  // Create a channel with name.
+  requestCreateChannel(groupID: number, channelName: string, executor: number) {
+    let body = {
+      "group": groupID,
+      "name": channelName,
+      "executor": executor
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/channels/create`, body, httpOptions));
+  }
+
+  // Delete a channel with ID.
+  requestDeleteChannel(groupID: number, channelID: number, executor: number) {
+    let body = {
+      "group": groupID,
+      "channel": channelID,
+      "executor": executor
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/channels/remove`, body, httpOptions));
+  }
+
   // Getters for any multicast observables we have.
   get user(): Observable<User> {
     return(this.user$.asObservable());

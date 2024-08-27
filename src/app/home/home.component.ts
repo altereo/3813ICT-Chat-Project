@@ -51,7 +51,10 @@ export class HomeComponent implements OnInit {
   
   targetID: number = -1;
   targetGroup: Group | undefined = undefined;
+
+  // Form stuff.
   groupName: string = "";
+  channelName: string = "";
 
   updateCachedGroup() {
     let groupsList = this.chatApiService.getGroupsValue();
@@ -88,6 +91,43 @@ export class HomeComponent implements OnInit {
         return;
       }
     });
+    return;
+  }
+
+  onChannelInput(e: Event) {
+    const input = e.target as HTMLInputElement;
+
+    this.channelName = input.value.replace(/\s+/g, '-').toLowerCase();
+    return;
+  }
+
+  submitCreateChannel() {
+    if (this.channelName === "") return;
+
+    this.chatApiService.requestCreateChannel(
+      this.targetID,
+      this.channelName,
+      this.userID
+    ).subscribe((data: any) => {
+      if (data.status === "OK") {
+        this.channelName = "";
+        this.chatApiService.getGroups(this.userID);
+        return;
+      }
+    });
+    return;
+  }
+
+  deleteChannel(id: number) {
+    this.chatApiService.requestDeleteChannel(
+      this.targetID,
+      id,
+      this.userID
+    ).subscribe((data: any) => {
+      if (data.status === "OK") {
+        this.chatApiService.getGroups(this.userID);
+      }
+    })
     return;
   }
 

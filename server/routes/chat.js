@@ -135,6 +135,57 @@ router
 	return;
 })
 
+// Create a new channel for the given group.
+// Takes: group, name, executor
+.post('/group/channels/create', (req, res) => {
+	let data = req.body;
+	if (getHighestForGroup(data.executor, data.group) >= 1) {
+		if (data.name) {
+			storage.createChannel(data.group, data.name);
+			res.json({
+				"status": "OK",
+				"message": ""
+			});
+			return;
+		} else {
+			res.json({
+				"status": "ERROR",
+				"message": "Channel name may not be empty."
+			});
+			return;
+		}
+	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "Insufficient privelages."
+	});
+	return;
+})
+
+
+// Delete a channel.
+// Takes: group, channel, executor
+.post('/group/channels/remove', (req, res) => {
+	let data = req.body;
+	if (getHighestForGroup(data.executor, data.group) >= 1) {
+		if (data.group && data.channel) {
+			storage.deleteChannel(data.group, data.channel);
+			res.json({
+				"status": "OK",
+				"message": ""
+			});
+			return;
+		}
+
+		res.json({
+			"status": "ERROR",
+			"message": "Group or channel ID missing."
+		});
+		return;
+	}
+})
+
 // Get all messages in a channel.
 .get('/messages/:channelID', (req, res) => {
 	let channelID = req.params.channelID;

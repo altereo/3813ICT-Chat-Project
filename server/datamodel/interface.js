@@ -91,6 +91,11 @@ function getTable(type) {
 	return(tableSet[type]);
 }
 
+function generateID(length) {
+	if (length < 1) return(-1);
+	return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
+}
+
 function tryCreateUser(username, email, password) {
 	let userCheck = users.find(cred => cred.email === email);	// Check for existing user with that email.
 	if (userCheck || !email || !username || !password) {
@@ -102,7 +107,7 @@ function tryCreateUser(username, email, password) {
 			"password": password,
 			"roles": [],
 			"groups": [],
-			"id": Math.floor(100000000 + Math.random() * 900000000) // Might risk ID collision but who cares.
+			"id": generateID(9) // Might risk ID collision but who cares.
 		}
 
 		users.push(newUser);
@@ -157,4 +162,30 @@ function renameGroup(groupID, newName) {
 	return;
 }
 
-module.exports = { getTable, tryCreateUser, removeGroupFromUser, renameGroup, addUserToGroup, removeRequest };
+function createChannel(groupID, channelName) {
+	groups[groups.findIndex((group) => group.id === groupID)].channels.push({
+		"id": generateID(8),
+		"name": channelName
+	});
+	return;
+}
+
+function deleteChannel(groupID, channelID) {
+	let groupIndex = groups.findIndex((group) => group.id === groupID);
+
+	groups[groupIndex].channels.splice(
+		groups[groupIndex].channels.findIndex((channel) => channel.id === channelID), 1
+	)
+	return;
+}
+
+module.exports = { 
+	getTable,
+	tryCreateUser,
+	removeGroupFromUser,
+	renameGroup,
+	addUserToGroup,
+	removeRequest,
+	createChannel,
+	deleteChannel
+};
