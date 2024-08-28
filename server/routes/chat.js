@@ -251,7 +251,8 @@ router
 })
 
 // Get last 50 messages in a channel.
-.get('/messages/:channelID', (req, res) => {
+// takes group, channel
+.get('/group/messages', (req, res) => {
 	let channelID = req.params.channelID;
 	res.json({
 		"status": "NOT_IMPLEMENTED",
@@ -282,12 +283,22 @@ router
 
 // Send message to channel as user.
 // Requires:
-// 	 groupID,
-//   channelID,
-//   userID,
+// 	 group,
+//   channel,
+//   executor,
 //   message
 .post('/messages/send', (req, res) => {
 	let messageData = req.body;
+	res.json({
+		"status": "NOT_IMPLEMENTED"
+	});
+	return;
+});
+
+// Change the permissions of the user.
+// Requres: group, user, role, executor
+.post('/group/user/promote', (req, res) => {
+	let data = req.body;
 	res.json({
 		"status": "NOT_IMPLEMENTED"
 	});
