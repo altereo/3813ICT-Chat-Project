@@ -207,7 +207,28 @@ router
 	return;
 })
 
-// Get all messages in a channel.
+// Create a group.
+// takes name, executor
+.post('/group/create', (req, res) => {
+	let data = req.body;
+	if (getUser(data.executor).roles.filter((role) => role.includes("ADMIN"))) {
+		storage.createGroup(data.name, data.executor);
+		res.json({
+			"status": "OK",
+			"message": "",
+			"roles": getUser(data.executor).roles
+		});
+		return;
+	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "You do not have the ability to perform this action."
+	});
+	return;
+})
+
+// Get last 50 messages in a channel.
 .get('/messages/:channelID', (req, res) => {
 	let channelID = req.params.channelID;
 	res.json({

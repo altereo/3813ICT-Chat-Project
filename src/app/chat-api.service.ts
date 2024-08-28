@@ -223,6 +223,22 @@ export class ChatApiService {
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/delete`, body, httpOptions));
   }
 
+  requestCreateGroup(groupName: string, executor: number) {
+    let body = {
+      "name": groupName,
+      "executor": executor
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/create`, body, httpOptions));
+  }
+
+  updateRoles(newRoles: string[]) {
+    let newUser = this.getUser();
+    newUser.roles = newRoles;
+    this.store("user", newUser);
+    return;
+  }
+
   // Getters for any multicast observables we have.
   get user(): Observable<User> {
     return(this.user$.asObservable());

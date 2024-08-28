@@ -6,35 +6,35 @@
 	<div class="offcanvas-body">
 		<h5>Group Name</h5>
 		<div class="mb-4 group-name-form">
-			<input [(ngModel)]="groupName" class="group-name-input" type="text" name="group-name" id="group-name">
-			<button class="group-name-input" type="submit" (click)="submitRenameGroup()">Change</button>
+			<input [(ngModel)]="groupName" class="group-name-input" type="text" name="group-name" id="group-name" [disabled]="(user | getRoleNoAPI : targetID) == 'User'">
+			<button class="group-name-input" type="submit" (click)="submitRenameGroup()" [disabled]="(user | getRoleNoAPI : targetID) == 'User'">Change</button>
 		</div>
 		<h5>Users</h5>
 		<div class="mb-4 list-view" id="user-list">
-			<div class="user-list-item" *ngFor="let userID of targetGroup?.joinRequests">
+			<div class="user-list-item" *ngFor="let targetUserID of targetGroup?.joinRequests">
 				<span class="user-name-display">
 					<span class="subtle-text">Request :: </span>
-					<span>{{userID | getUsernameByID | async}}</span>
+					<span>{{targetUserID | getUsernameByID | async}}</span>
 				</span>
-				<span class="toolbar">
-					<button (click)="approveRejectUser(true, userID)" class="btn btn-link user-action-button" title="Approve">
+				<span class="toolbar" *ngIf="(user | getRoleNoAPI : targetID) != 'User'">
+					<button (click)="approveRejectUser(true, targetUserID)" class="btn btn-link user-action-button" title="Approve">
 						<i class="bi bi-check-circle"></i>
 					</button>
-					<button (click)="approveRejectUser(false, userID)" class="btn btn-link user-action-button" title="Deny">
+					<button (click)="approveRejectUser(false, targetUserID)" class="btn btn-link user-action-button" title="Deny">
 						<i class="bi bi-x-circle"></i>
 					</button>
 				</span>
 			</div>
-			<div class="user-list-item" *ngFor="let userID of targetGroup?.users">
+			<div class="user-list-item" *ngFor="let targetUserID of targetGroup?.users">
 				<span class="user-name-display">
-					<span class="subtle-text">{{userID | getRoleByID : targetID | async}} :: </span>
-					<span>{{userID | getUsernameByID | async}}</span>
+					<span class="subtle-text">{{targetUserID | getRoleByID : targetID | async}} :: </span>
+					<span>{{targetUserID | getUsernameByID | async}}</span>
 				</span>
-				<span class="toolbar">
+				<span class="toolbar" *ngIf="(user | getRoleNoAPI : targetID) != 'User'">
 					<button class="btn btn-link user-action-button" title="Promote/Demote">
 						<i class="bi bi-arrow-down-up"></i>
 					</button>
-					<button class="btn btn-link user-action-button" title="Kick" [disabled]="(userID | getRoleByID : targetID | async) == 'Operator'" (click)="kickUser(userID)">
+					<button class="btn btn-link user-action-button" title="Kick" [disabled]="(targetUserID | getRoleByID : targetID | async) == 'Operator'" (click)="kickUser(targetUserID)">
 						<i class="bi bi-ban"></i>
 					</button>
 				</span>
@@ -44,23 +44,35 @@
 		<div class="mb-4 list-view" id="user-list">
 			<div class="user-list-item" *ngFor="let channel of targetGroup?.channels">
 				<span class="user-name-display">{{channel.name}}</span>
-				<span class="toolbar">
+				<span class="toolbar" *ngIf="(user | getRoleNoAPI : targetID) != 'User'">
 					<button class="btn btn-link user-action-button" (click)="deleteChannel(channel.id)" title="Delete">
 						<i class="bi bi-x-circle"></i>
 					</button>
 				</span>
 			</div>
-			<div class="user-list-item">
+			<div class="user-list-item" *ngIf="(user | getRoleNoAPI : targetID) != 'User'">
 				<input class="channel-name-input" [(ngModel)]="channelName" (keyup.enter)="submitCreateChannel()" (input)="onChannelInput($event)" placeholder="New channel">
 			</div>
 		</div>
-		<h5>Actions</h5>
-		<div class="d-grid gap-3 mb-3">
+		<h5 *ngIf="(user | getRoleNoAPI : targetID) != 'User'">Actions</h5>
+		<div class="d-grid gap-3 mb-3" *ngIf="(userID | getRoleByID : targetID | async) != 'User'">
 			<button class="btn btn-outline-danger" (click)="deleteGroup()">Delete Group</button>
 		</div>
 	</div>
 </ng-template>
 
+<ng-template #createGroupModal let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">Create Group</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('')"></button>
+	</div>
+	<div class="modal-body create-group-input-bg">
+		<input class="channel-name-input" [(ngModel)]="newGroupName" (keyup.enter)="createGroup()" placeholder="Group name">
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="group-modal-btn btn btn-outline-secondary" (click)="createGroup()">Create</button>
+	</div>
+</ng-template>
 
 <div class="main-window">
 	<div class="container group-list" id="group-list" ngbAccordion>
@@ -68,9 +80,16 @@
 			<h5>
 				Groups
 			</h5>
-			<button class="btn btn-link header-button">
-				<i class="bi bi-plus-lg"></i>
-			</button>
+			<div ngbDropdown>
+				<button class="btn btn-link header-button" ngbDropdownToggle>
+					<i class="bi bi-plus-lg"></i>
+				</button>
+				<div ngbDropdownMenu class="add-group-options">
+					<button ngbDropdownItem>Join Group</button>
+					<span class="horiz-sep"></span>
+					<button (click)="openCreateJoinGroup(createGroupModal)" ngbDropdownItem *ngIf="hasAdminRole()">Create a Group</button>
+				</div>
+			</div>
 		</div>
 		<div class="container group-item" *ngFor="let group of groups | async" ngbAccordionItem>
 			<h5 class="group-header" id="{{group.id}}" title="{{group.name}}" ngbAccordionHeader>

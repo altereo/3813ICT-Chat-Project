@@ -75,7 +75,7 @@ const groups = [
 				"name": "homework-help"
 			}
 		],
-		"users": [914976000, 535134682, 127845683],
+		"users": [914976000, 535134682, 127845683, 663242268],
 		"joinRequests": [],
 		"creator": 535134682
 	}
@@ -185,6 +185,25 @@ function deleteGroup(groupID) {
 	return;
 }
 
+function createGroup(name, user) {
+	let groupID = generateID(12);
+	groups.push({
+		"id": groupID,
+		"name": name,
+		"channels": [
+			{
+				"id": generateID(8),
+				"name": "general"
+			}
+		],
+		"users": [user],
+		"joinRequests": [],
+		"creator": user
+	});
+	addUserToGroup(user, groupID);
+	users[users.findIndex((item) => item.id === user)].roles.push(`${groupID}::ADMIN`);
+}
+
 module.exports = { 
 	getTable,
 	tryCreateUser,
@@ -194,5 +213,6 @@ module.exports = {
 	removeRequest,
 	createChannel,
 	deleteChannel,
-	deleteGroup
+	deleteGroup,
+	createGroup
 };

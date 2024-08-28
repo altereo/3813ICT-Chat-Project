@@ -96,6 +96,7 @@
 	justify-content: space-between;
 	align-items: center;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	height: 38.4px;
 }
 
 .btn.btn-link > i {
@@ -170,6 +171,11 @@ button.group-name-input:active {
 	background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
+button.group-name-input:disabled {
+	background-color: rgba(0, 0, 0, 0.4) !important;
+	color: gray !important;
+}
+
 .offcanvas-body {
 	padding-right: calc(1rem + 8px);
 }
@@ -189,4 +195,32 @@ button.group-name-input:active {
 .header-button {
 	font-size: 20px;
 	line-height: 0;
+}
+
+.dropdown-toggle::after {
+	display: none !important;
+}
+
+.dropdown-item:active {
+	background-color: rgba(255, 255, 255, 0.4);
+}
+
+.group-modal-btn {
+	color: var(--bs-body-color);
+}
+
+.create-group-input-bg {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.horiz-sep {
+	box-sizing: border-box;
+	line-height: 0;
+	padding: 0;
+	height: 0;
+	width: 100%;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	border-bottom: 1px solid var(--subtlegray);
+	display: block;
 }

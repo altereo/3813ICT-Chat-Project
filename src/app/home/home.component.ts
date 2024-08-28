@@ -2,21 +2,27 @@ import { Component, OnInit, Inject, TemplateRef, ChangeDetectorRef } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, RouterLink, RouterOutlet, Router } from '@angular/router';
-import { NgbAccordionModule, NgbOffcanvas, OffcanvasDismissReasons, NgbOffcanvasRef } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbAccordionModule,
+  NgbOffcanvas,
+  OffcanvasDismissReasons,
+  NgbOffcanvasRef,
+  NgbDropdownModule,
+  NgbModal,
+  NgbModalRef
+} from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 
 import { TruncatePipe } from '../pipes/truncate.pipe';
 import { GetRoleByIDPipe } from '../pipes/get-role-by-id.pipe';
+import { GetRoleNoAPIPipe } from '../pipes/get-role-no-api.pipe';
 import { GetServerByIDPipe } from '../pipes/get-server-by-id.pipe';
 import { GetUsernameByIDPipe } from '../pipes/get-username-by-id.pipe';
-import { ChatApiService, Group, Channel } from '../chat-api.service';
+import { ChatApiService, User, Group, Channel } from '../chat-api.service';
 
 /*
   Intended functions for settings panel:
-  - List users (promote, from user to any admin level/remove/ban)
-  - Approve join requests: Join requests should be done via a shareable join code (a hash of group id)
-  - Manage channels
-  - Rename/delete group
+  - Display user information and logout button at bottom of server list. (discord style)
   - All features should include a toggle for their relevant permission level.
       Basically, if they don't have superadmin or they don't have an admin with
       correct server id, don't show administrative actions.
@@ -37,16 +43,19 @@ import { ChatApiService, Group, Channel } from '../chat-api.service';
     RouterModule,
     FormsModule,
     NgbAccordionModule,
+    NgbDropdownModule,
     GetServerByIDPipe,
     GetUsernameByIDPipe,
     TruncatePipe,
-    GetRoleByIDPipe
+    GetRoleByIDPipe,
+    GetRoleNoAPIPipe
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-  private userID = -1;
+  user: User | null = null;
+  userID: number = -1;
   groups: Observable<Group[]>;
   
   targetID: number = -1;
@@ -54,8 +63,16 @@ export class HomeComponent implements OnInit {
 
   // Form stuff.
   private offCanvasRef: NgbOffcanvasRef | null = null;
+  private modalRef: NgbModalRef | null = null;
   groupName: string = "";
   channelName: string = "";
+  newGroupName: string = "";
+
+  hasAdminRole() {
+    if (!this.user) return(false);
+
+    return(this.user.roles.filter((role: string) => role.includes('ADMIN')).length > 0);
+  }
 
   updateCachedGroup() {
     let groupsList = this.chatApiService.getGroupsValue();
@@ -149,6 +166,31 @@ export class HomeComponent implements OnInit {
     })
   }
 
+  createGroup() {
+    this.chatApiService.requestCreateGroup(
+      this.newGroupName,
+      this.userID
+    ).subscribe((data: any) => {
+      if (data.status === "OK") {
+        if (this.modalRef) {
+          this.newGroupName = "";
+          this.modalRef.close();
+        }
+        this.chatApiService.updateRoles(data.roles);
+        this.chatApiService.getGroups(this.userID);
+        this.router.navigateByUrl("/home");
+      }
+      return;
+    });
+
+    return;
+  }
+
+  openCreateJoinGroup(content: TemplateRef<any>) {
+    this.modalRef = this.modalService.open(content);
+    return;
+  } 
+
   openSettings(content: TemplateRef<any>, id: number) {
     this.targetID = id;
     this.chatApiService.getGroups(this.userID);
@@ -159,7 +201,13 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     if (this.chatApiService.isLoggedIn()) {
-      this.userID = this.chatApiService.getUser()?.id || -1;
+      this.chatApiService.user.subscribe((data: any) => {
+        this.user = data;
+        this.userID = data?.id || -1;
+      });
+
+      this.user = this.chatApiService.getUser();
+      this.userID = this.user?.id || -1;
       
       setTimeout(() => {
         this.chatApiService.synchroniseService();
@@ -182,6 +230,7 @@ export class HomeComponent implements OnInit {
     private router:Router,
     private chatApiService: ChatApiService,
     private offCanvasService: NgbOffcanvas,
+    private modalService: NgbModal,
     private cdr: ChangeDetectorRef
   ) {
     this.groups = this.chatApiService.groups;
