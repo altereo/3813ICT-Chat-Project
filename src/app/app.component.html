@@ -1,5 +1,8 @@
 <span class="header">
 	<p class="heading-text">3813ICT Chat Application</p>
-	<p class="logout-button" *ngIf="(user | async)?.valid" (click)="triggerLogout()">Logout</p>
+	<span *ngIf="(user | async)?.valid">
+		You are logged in as <b>{{(user | async)?.username}}</b>. 
+		<a class="logout-button" (click)="triggerLogout()">Logout</a>
+	</span>
 </span>
 <router-outlet />

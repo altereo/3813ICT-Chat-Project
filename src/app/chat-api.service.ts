@@ -223,6 +223,15 @@ export class ChatApiService {
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/delete`, body, httpOptions));
   }
 
+  requestJoinGroup(groupCode: string, executor: number) {
+    let body = {
+      "code": groupCode,
+      "executor": executor
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/request`, body, httpOptions));
+  }
+
   requestCreateGroup(groupName: string, executor: number) {
     let body = {
       "name": groupName,

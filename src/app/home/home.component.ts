@@ -67,9 +67,11 @@ export class HomeComponent implements OnInit {
   groupName: string = "";
   channelName: string = "";
   newGroupName: string = "";
+  joinCode: string = "";
 
   hasAdminRole() {
     if (!this.user) return(false);
+    if (!this.user.roles) return(false);
 
     return(this.user.roles.filter((role: string) => role.includes('ADMIN')).length > 0);
   }
@@ -179,6 +181,41 @@ export class HomeComponent implements OnInit {
         this.chatApiService.updateRoles(data.roles);
         this.chatApiService.getGroups(this.userID);
         this.router.navigateByUrl("/home");
+      }
+      return;
+    });
+
+    return;
+  }
+
+  convertGroupIdToCode(groupID: number): string {
+    let id = BigInt(groupID);
+    return id.toString(36).toUpperCase();
+  }
+
+  copyGroupCode(groupID: number) {
+    navigator.clipboard.writeText(this.convertGroupIdToCode(groupID));
+    return;
+  }
+
+  onGroupCodeInput(e: Event) {
+    const input = e.target as HTMLInputElement;
+
+    this.joinCode = input.value.toUpperCase();
+    return;
+  }
+
+  requestJoinGroup() {
+    this.chatApiService.requestJoinGroup(
+      this.joinCode,
+      this.userID
+    ).subscribe((data: any) => {
+      if (data.status === "OK") {
+        if (this.modalRef) {
+          this.joinCode = "";
+          this.modalRef.close();
+        }
+        this.chatApiService.getGroups(this.userID);
       }
       return;
     });

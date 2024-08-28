@@ -142,7 +142,7 @@
 }
 
 
-.group-name-input {
+.group-name-input, .join-code-box {
 	background-color: rgba(0, 0, 0, 0.4);
 	padding: 8px;
 	border: none;
@@ -157,21 +157,39 @@ input.group-name-input {
 	border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+div.join-code-box {
+	width: calc(100% - 40px);
+	border-radius: 4px 0px 0px 4px;
+	padding-left: 16px;
+	border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.join-code-view {
+	display: flex;
+	flex-direction: row;
+}
+
+button.join-code-box {
+	width: 40px;
+	border-radius: 0 4px 4px 0;
+	color: var(--bs-body-color);
+}
+
 button.group-name-input {
 	width: 86px;
 	border-radius: 0 4px 4px 0;
 	color: var(--bs-body-color);
 }
 
-button.group-name-input:hover {
+button.group-name-input:hover, button.join-code-box:hover {
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
-button.group-name-input:active {
+button.group-name-input:active, button.join-code-box:active {
 	background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-button.group-name-input:disabled {
+button.group-name-input:disabled, button.join-code-box:disabled {
 	background-color: rgba(0, 0, 0, 0.4) !important;
 	color: gray !important;
 }

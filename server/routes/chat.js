@@ -228,6 +228,28 @@ router
 	return;
 })
 
+// Request to join a group.
+// takes code, executor
+.post('/group/request', (req, res) => {
+	let data = req.body;
+	try {
+		storage.addRequest(data.executor, parseInt(data.code, 36));
+		res.json({
+			"status": "OK",
+			"message": ""
+		});
+		return;
+	} catch (e) {
+		res.json({
+			"status": "ERROR",
+			"message": "Invalid join code."
+		});
+		return;
+	}
+
+	return;
+})
+
 // Get last 50 messages in a channel.
 .get('/messages/:channelID', (req, res) => {
 	let channelID = req.params.channelID;

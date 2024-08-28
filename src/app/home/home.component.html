@@ -4,10 +4,18 @@
 		<button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
 	</div>
 	<div class="offcanvas-body">
-		<h5>Group Name</h5>
+		<h5>Group Information</h5>
 		<div class="mb-4 group-name-form">
-			<input [(ngModel)]="groupName" class="group-name-input" type="text" name="group-name" id="group-name" [disabled]="(user | getRoleNoAPI : targetID) == 'User'">
-			<button class="group-name-input" type="submit" (click)="submitRenameGroup()" [disabled]="(user | getRoleNoAPI : targetID) == 'User'">Change</button>
+			<label for="group-name">Group Name</label>
+			<div class="mb-3">
+				<input [(ngModel)]="groupName" class="group-name-input" type="text" name="group-name" id="group-name" [disabled]="(user | getRoleNoAPI : targetID) == 'User'">
+				<button class="group-name-input" type="submit" (click)="submitRenameGroup()" [disabled]="(user | getRoleNoAPI : targetID) == 'User'">Change</button>
+			</div>
+			<label for="join-code">Join Code</label>
+			<div class="mb-3 join-code-view">
+				<div class="join-code-box" name="join-code">{{convertGroupIdToCode(targetID)}}</div>
+				<button class="join-code-box" type="submit" (click)="copyGroupCode(targetID)"><i class="bi bi-clipboard"></i></button>
+			</div>
 		</div>
 		<h5>Users</h5>
 		<div class="mb-4 list-view" id="user-list">
@@ -74,6 +82,19 @@
 	</div>
 </ng-template>
 
+<ng-template #joinGroupModal let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">Request to Join Group</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('')"></button>
+	</div>
+	<div class="modal-body create-group-input-bg">
+		<input class="channel-name-input" [(ngModel)]="joinCode" (input)="onGroupCodeInput($event)" (keyup.enter)="requestJoinGroup()" placeholder="Group code" maxlength="8">
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="group-modal-btn btn btn-outline-secondary" (click)="requestJoinGroup()">Join</button>
+	</div>
+</ng-template>
+
 <div class="main-window">
 	<div class="container group-list" id="group-list" ngbAccordion>
 		<div class="container group-list-header">
@@ -85,7 +106,7 @@
 					<i class="bi bi-plus-lg"></i>
 				</button>
 				<div ngbDropdownMenu class="add-group-options">
-					<button ngbDropdownItem>Join Group</button>
+					<button (click)="openCreateJoinGroup(joinGroupModal)" ngbDropdownItem>Join Group</button>
 					<span class="horiz-sep"></span>
 					<button (click)="openCreateJoinGroup(createGroupModal)" ngbDropdownItem *ngIf="hasAdminRole()">Create a Group</button>
 				</div>

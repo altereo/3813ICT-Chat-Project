@@ -138,7 +138,17 @@ function removeRequest(userID, groupID) {
 	if (groupIndex === -1 || requestIndex === -1) return;
 
 	groups[groupIndex].joinRequests.splice(requestIndex, 1);
-	console.log(groups, requestIndex, groupIndex);
+	return;
+}
+
+function addRequest(userID, groupID) {
+	let groupIndex = groups.findIndex((group) => group.id === groupID);
+	if (
+		!groups[groupIndex].users.includes(userID) &&
+		!groups[groupIndex].joinRequests.includes(userID)
+	) {
+		groups[groupIndex].joinRequests.push(userID);
+	}
 	return;
 }
 
@@ -211,6 +221,7 @@ module.exports = {
 	renameGroup,
 	addUserToGroup,
 	removeRequest,
+	addRequest,
 	createChannel,
 	deleteChannel,
 	deleteGroup,
