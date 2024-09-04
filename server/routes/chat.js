@@ -293,7 +293,7 @@ router
 		"status": "NOT_IMPLEMENTED"
 	});
 	return;
-});
+})
 
 // Change the permissions of the user.
 // Requres: group, user, role, executor
