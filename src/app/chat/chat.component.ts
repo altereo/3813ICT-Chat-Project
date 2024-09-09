@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, RouterLink, RouterOutlet, Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { ChatApiService, User, Group, Channel } from '../chat-api.service';
+import { ChatApiService, User, Group, Channel, Message } from '../chat-api.service';
 
 @Component({
   selector: 'app-chat',
@@ -17,12 +17,23 @@ export class ChatComponent implements OnInit {
   private serverID = "";
   private channelID = "";
   chatTitle = "";
+  messages: Message[] = [];
 
   // Bind the input box so we can clear it later.
   message = "";
 
+  // Get human friendly date from Date.now().
+  getDate(date: number) {
+    return(new Date(date).toLocaleString('en-GB'));
+  }
+
   sendMessage(newMessage: string) {
-    console.debug(`Message: ${newMessage}`);
+    this.chatApiService.emitMessage(
+      +this.serverID,
+      +this.channelID,
+      this.chatApiService.getUser().id,
+      this.message
+    );
 
     this.message = "";
     return;
@@ -36,9 +47,18 @@ export class ChatComponent implements OnInit {
         this.channelID = path[1];
 
         this.chatTitle = this.chatApiService.getChatTitle(+this.serverID, +this.channelID);
+        if (this.chatTitle === "") {
+          this.router.navigateByUrl("/home");
+        }
       }
-    })
+    });
+
+    this.chatApiService.onMessage().subscribe((data: Message) => {
+      if (`${data.group}` === this.serverID && `${data.channel}` === this.channelID) {
+        this.messages.push(data);
+      }
+    });
   }
 
-  constructor(private route: ActivatedRoute, private chatApiService: ChatApiService) { }
+  constructor(private router:Router, private route: ActivatedRoute, private chatApiService: ChatApiService) { }
 }

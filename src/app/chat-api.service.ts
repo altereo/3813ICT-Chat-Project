@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, Observer } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
@@ -32,12 +33,32 @@ export type Group = {
   creator: number;
 }
 
+export type Message = {
+  group: number;
+  channel: number;
+  id: number;
+  text: string;
+  author: User | null;
+  image: string | null;
+  date: number
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatApiService {
   private isBrowser!: boolean;
+  private socket: Socket | null = null;
+  private readonly message$: BehaviorSubject<Message> = new BehaviorSubject<Message>({
+    group: -1,
+    channel: -1,
+    id: -1,
+    text: "",
+    author: null,
+    image: null,
+    date: 0
+  });
+
   private readonly user$: BehaviorSubject<User> = new BehaviorSubject<User>({
     username: null,
     email: null,
@@ -48,7 +69,76 @@ export class ChatApiService {
   });
 
   private readonly groups$: BehaviorSubject<Group[]> = new BehaviorSubject<Group[]>([]);
-  private usernameCache: { [id: number]: string } = {};
+  private readonly groupUpdate$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+
+  // Initialise the socket connection.
+  initSocket() {
+    if (!this.isBrowser) return; // Prevent angular from hanging with SSR on.
+    if (this.socket !== null) return;
+
+    this.socket = io(BACKEND_URL);
+    
+    // Listeners.
+    this.socket?.on('connect', () => {
+      console.debug("Connected to socket server.");
+      return;
+    });
+
+    this.socket?.on('disconnect', () => {
+      console.debug("Disconnected from socket server.");
+      return;
+    });
+
+    this.socket?.on('connect_error', (err) => {
+      console.log("Failed to connect to socket server:", err);
+      return;
+    });
+
+    this.socket?.on('message', (message: Message) => {
+      this.message$.next(message);
+      return;
+    });
+
+    this.socket?.on('group_change', (id: number) => {
+      this.groupUpdate$.next(id || 0);
+      return;
+    });
+    return;
+  }
+
+  generateID(length: number) {
+    if (length < 1) return(-1);
+    return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
+  }
+
+  // On message event.
+  onMessage(): Observable<Message> {
+    return(this.message$.asObservable());
+  }
+
+  // On group update event.
+  onGroupChanged(): Observable<number> {
+    return(this.groupUpdate$.asObservable());
+  }
+
+  announceGroupChange(): void {
+    this.socket?.emit('group_change');
+    return;
+  }
+
+  emitMessage(group: number, channel: number, author: number, text: string): void {
+    if (text === "") return;
+
+    this.socket?.emit('message', {
+      group,
+      channel,
+      author,
+      text,
+      id: this.generateID(8),
+      image: null
+    });
+    return;
+  }
 
   // Store data in sessionStorage.
   private store(key: string, data: any) {
@@ -76,6 +166,7 @@ export class ChatApiService {
     let group = (data.find((group: Group) => group.id === groupID));
     let channel = group?.channels?.find((channel: Channel) => channel.id === channelID);
     
+    if (!group?.name || !channel?.name) return("");
     return(`${group?.name} :: ${channel?.name}` || "");
   }
 
@@ -257,7 +348,6 @@ export class ChatApiService {
     return(this.groups$.asObservable());
   }
 
-
   synchroniseService() {
     this.store("user", this.getUser());
     return;
@@ -265,5 +355,6 @@ export class ChatApiService {
 
   constructor(@Inject(PLATFORM_ID) private platformId:Object, private httpClient: HttpClient) {
     this.isBrowser = isPlatformBrowser(platformId);
+    this.initSocket();
   }
 }

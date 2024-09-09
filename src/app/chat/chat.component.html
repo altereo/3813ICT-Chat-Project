@@ -5,14 +5,17 @@
 		</h5>
 	</div>
 	<div class="chat-view container-fluid">
-
+		<div class="message" *ngFor="let message of messages">
+			<span class="date-text">[{{getDate(message.date)}}]</span>
+			 <{{message.author?.username}}>: {{message.text}}
+		</div>
 	</div>
 	<div class="message-bar">
 		<div class="input-view">
 			<div class="btn btn-link" id="upload-button" title="Upload file">
 				<i class="bi bi-plus-circle-fill"></i>
 			</div>
-			<input class="input-box" (keyup.enter)="sendMessage($any($event).target.value)" [(ngModel)]="message" />
+			<input class="input-box" (keyup.enter)="sendMessage($any($event).target.value)" [(ngModel)]="message" maxlength=2048 />
 		</div>
 	</div>
 </div>

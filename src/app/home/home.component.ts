@@ -21,18 +21,9 @@ import { GetUsernameByIDPipe } from '../pipes/get-username-by-id.pipe';
 import { ChatApiService, User, Group, Channel } from '../chat-api.service';
 
 /*
-  Intended functions for settings panel:
-  - Display user information and logout button at bottom of server list. (discord style)
-  - All features should include a toggle for their relevant permission level.
-      Basically, if they don't have superadmin or they don't have an admin with
-      correct server id, don't show administrative actions.
-*/
-
-/*
-  As for checking if users can create groups,
-  check if user has any roles (since any admin position can create
-  and roles only store admin stuff.)
-
+  Todo:
+  - add logout button
+  - add manage user button
 */
 
 @Component({
@@ -88,6 +79,7 @@ export class HomeComponent implements OnInit {
   approveRejectUser(state: boolean, id: number) {
     this.chatApiService.approveRejectRequest(id, this.targetID, state, this.userID).subscribe((data: any) => {
       this.chatApiService.getGroups(this.userID);
+      this.chatApiService.announceGroupChange();
       return;
     });
     return;
@@ -97,6 +89,7 @@ export class HomeComponent implements OnInit {
     this.chatApiService.removeUserFromServer(id, this.targetGroup?.id || -1, this.userID).subscribe((data: any) => {
       if (data.status === "OK") {
         this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
         return;
       }
     });
@@ -108,6 +101,7 @@ export class HomeComponent implements OnInit {
     this.chatApiService.renameGroup(this.targetID, this.groupName, this.userID).subscribe((data: any) => {
       if (data.status === "OK") {
         this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
         return;
       }
     });
@@ -132,6 +126,7 @@ export class HomeComponent implements OnInit {
       if (data.status === "OK") {
         this.channelName = "";
         this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
         return;
       }
     });
@@ -146,6 +141,7 @@ export class HomeComponent implements OnInit {
     ).subscribe((data: any) => {
       if (data.status === "OK") {
         this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
       }
     })
     return;
@@ -158,6 +154,7 @@ export class HomeComponent implements OnInit {
     ).subscribe((data: any) => {
       if (data.status === "OK") {
         this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
         if (this.offCanvasRef) {
           this.offCanvasRef.close();
         }
@@ -216,6 +213,7 @@ export class HomeComponent implements OnInit {
           this.modalRef.close();
         }
         this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
       }
       return;
     });
@@ -258,6 +256,10 @@ export class HomeComponent implements OnInit {
         if (this.targetID !== -1) {
           this.updateCachedGroup();
         }
+      });
+
+      this.chatApiService.onGroupChanged().subscribe((id: number) => {
+        this.chatApiService.getGroups(this.userID);
       })
     }
     return;
