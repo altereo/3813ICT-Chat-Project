@@ -5,9 +5,18 @@
 		</h5>
 	</div>
 	<div class="chat-view container-fluid">
-		<div class="message" *ngFor="let message of messages">
-			<span class="date-text">[{{getDate(message.date)}}]</span>
-			 <{{message.author?.username}}>: {{message.text}}
+		<div class="message" *ngFor="let messageGroup of messages">
+			<span class="profile-container">
+				<img src="{{messageGroup[0].author?.image || 'http://127.0.0.1:3000/avatar/default.webp'}}" class="profile-image">
+			</span>
+			<span>
+				<span class="name-display">
+					{{messageGroup[0].author?.username}} <span class="date-text">[{{getDate(messageGroup[0].date)}}]</span>
+				</span>
+				<div class="message-singleton" *ngFor="let message of messageGroup">
+					{{message.text}}
+				</div>
+			</span>
 		</div>
 	</div>
 	<div class="message-bar">

@@ -17,7 +17,7 @@ export class ChatComponent implements OnInit {
   private serverID = "";
   private channelID = "";
   chatTitle = "";
-  messages: Message[] = [];
+  messages: Message[][] = []; // Convert this to a group of groups of messages, so that we can do discord style without too much trouble
 
   // Bind the input box so we can clear it later.
   message = "";
@@ -55,7 +55,21 @@ export class ChatComponent implements OnInit {
 
     this.chatApiService.onMessage().subscribe((data: Message) => {
       if (`${data.group}` === this.serverID && `${data.channel}` === this.channelID) {
-        this.messages.push(data);
+        if (this.messages.length === 0) {
+          this.messages.push([data]);
+          return;
+        }
+
+        let lastGroup = this.messages[this.messages.length - 1];
+        if (
+          data.date - lastGroup[lastGroup.length - 1].date <= 90000 && data.author &&
+          data.author?.id === lastGroup[lastGroup.length - 1].author?.id
+        ) {
+          this.messages[this.messages.length - 1].push(data);
+        } else {
+          this.messages.push([data]);
+        }
+        return;
       }
     });
   }

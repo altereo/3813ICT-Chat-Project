@@ -20,11 +20,12 @@ var io = new Server(http, {
 });
 
 const PORT = 3000;
-
+const CDN_DIR = "./www";
 
 // Additional routes.
 var authRoutes = require('./routes/auth.js');
 var chatRoutes = require('./routes/chat.js');
+var imageRoutes = require('./routes/image.js');
 
 // Log requests to console.
 app.use((req, res, next) => {
@@ -34,9 +35,9 @@ app.use((req, res, next) => {
 
 sockets.connect(io, PORT)
 
-app.get('/api/test', (req, res) => {
-	res.json({"status": "OK"});
-});
+// Host image folders.
+app.use('/avatar', express.static(`${CDN_DIR}/avatar`));
+app.use('/uploads', express.static(`${CDN_DIR}/uploads`));
 
 // Import auth routes.
 app.use('/api/auth', authRoutes)
@@ -45,6 +46,8 @@ app.use('/api/auth', authRoutes)
 // Import the chat routes under the chat path.
 app.use('/api/chat', chatRoutes);
 
+// Import the image routes.
+app.use('/api/upload', imageRoutes);
 
 
 // Start the server.

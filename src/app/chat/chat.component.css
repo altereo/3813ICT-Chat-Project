@@ -74,8 +74,32 @@
 
 .date-text {
 	color: rgba(255, 255, 255, 0.5);
+	font-size: 11px;
 }
 
 .message {
+	padding-top: 8px;
+	display: flex;
+	flex-direction: row;
+}
+
+.message-singleton {
 	word-wrap: anywhere;
+	font-size: 98%;
+
+}
+
+.name-display {
+	font-size: 1rem;
+}
+
+.profile-image {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+}
+
+.profile-container {
+	margin-right: 16px;
+	margin-top: 5px;
 }

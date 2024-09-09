@@ -16,6 +16,7 @@ var users = [
 		"password": "123",
 		"roles": ["SUPERADMIN"],
 		"groups": [324123246245, 124532467324],
+		"image": "",
 		"id": 914976000
 	},
 	{
@@ -24,6 +25,7 @@ var users = [
 		"password": "123",
 		"roles": ["SUPERADMIN"],
 		"groups": [324123246245, 124532467324],
+		"image": "",
 		"id": 535134682
 	},
 	{
@@ -32,6 +34,7 @@ var users = [
 		"password": "123",
 		"roles": ["324123246245::ADMIN"],
 		"groups": [324123246245, 124532467324],
+		"image": "",
 		"id": 663242268
 	},
 	{
@@ -40,6 +43,7 @@ var users = [
 		"password": "123",
 		"roles": [],
 		"groups": [124532467324],
+		"image": "",
 		"id": 127845683
 	}
 ];
@@ -107,6 +111,7 @@ function tryCreateUser(username, email, password) {
 			"password": password,
 			"roles": [],
 			"groups": [],
+			"image": "",
 			"id": generateID(9) // Might risk ID collision but who cares.
 		}
 
@@ -214,6 +219,14 @@ function createGroup(name, user) {
 	users[users.findIndex((item) => item.id === user)].roles.push(`${groupID}::ADMIN`);
 }
 
+function updateUserImage(filename, userID) {
+	let userIndex = users.findIndex((user) => user.id === userID);
+	if (userIndex !== -1) {
+		users[userIndex].image = `/avatar/${filename}`;
+	}
+	return;
+}
+
 module.exports = { 
 	getTable,
 	tryCreateUser,
@@ -225,5 +238,6 @@ module.exports = {
 	createChannel,
 	deleteChannel,
 	deleteGroup,
-	createGroup
+	createGroup,
+	updateUserImage
 };

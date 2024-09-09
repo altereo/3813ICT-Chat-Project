@@ -15,6 +15,7 @@ export type User = {
   id: number;
   roles: string[];
   groups: number[];
+  image: string;
   valid: boolean;
 }
 
@@ -65,6 +66,7 @@ export class ChatApiService {
     id: -1,
     roles: [],
     groups: [],
+    image: "",
     valid: false
   });
 
