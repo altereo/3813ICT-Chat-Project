@@ -24,7 +24,7 @@
 					<span class="subtle-text">Request :: </span>
 					<span>{{targetUserID | getUsernameByID | async}}</span>
 				</span>
-				<span class="toolbar" *ngIf="(user | getRoleNoAPI : targetID) != 'User'">
+				<span class="toolbar" *ngIf="(user | getRoleNoAPI : targetID) != 'User'">	
 					<button (click)="approveRejectUser(true, targetUserID)" class="btn btn-link user-action-button" title="Approve">
 						<i class="bi bi-check-circle"></i>
 					</button>
@@ -34,18 +34,27 @@
 				</span>
 			</div>
 			<div class="user-list-item" *ngFor="let targetUserID of targetGroup?.users">
-				<span class="user-name-display">
-					<span class="subtle-text">{{targetUserID | getRoleByID : targetID | async}} :: </span>
-					<span>{{targetUserID | getUsernameByID | async}}</span>
-				</span>
-				<span class="toolbar" *ngIf="(user | getRoleNoAPI : targetID) != 'User'">
-					<button class="btn btn-link user-action-button" title="Promote/Demote">
-						<i class="bi bi-arrow-down-up"></i>
-					</button>
-					<button class="btn btn-link user-action-button" title="Kick" [disabled]="(targetUserID | getRoleByID : targetID | async) == 'Operator'" (click)="kickUser(targetUserID)">
-						<i class="bi bi-ban"></i>
-					</button>
-				</span>
+				<ng-container *ngIf="(targetUserID | getUser: changeDetectionTicket | async) as targetUser">
+					<span class="user-name-display">
+						<span class="subtle-text">{{targetUser | getRoleNoAPI : targetID}} :: </span>
+						<span>{{targetUser.username}}</span>
+					</span>
+					<span class="toolbar" *ngIf="(user | getRoleNoAPI : targetID) != 'User' && !isMe(targetUserID)">
+						<div ngbDropdown container="body" *ngIf="(targetUser | getRoleNoAPI : targetID) != 'Operator' || (user | getRoleNoAPI : targetID) == 'Operator'">
+							<button class="btn btn-link user-action-button" title="Promote/Demote" ngbDropdownToggle>
+								<i class="bi bi-arrow-down-up"></i>
+							</button>
+							<div ngbDropdownMenu>
+								<button class="role-selector" [ngClass]="{'active': (targetUser | getRoleNoAPI: targetID) == 'Operator'}" ngbDropdownItem [disabled]="getHighestRole(targetID) < 2" (click)="promoteDemoteUser(targetUserID, 2)">Operator</button>
+								<button class="role-selector" [ngClass]="{'active': (targetUser | getRoleNoAPI: targetID) == 'Admin'}" ngbDropdownItem [disabled]="getHighestRole(targetID) < 1" (click)="promoteDemoteUser(targetUserID, 1)">Admin</button>
+								<button class="role-selector" [ngClass]="{'active': (targetUser | getRoleNoAPI: targetID) == 'User'}" ngbDropdownItem (click)="promoteDemoteUser(targetUserID, 0)">User</button>
+							</div>
+						</div>
+						<button class="btn btn-link user-action-button" title="Kick" [disabled]="(targetUser | getRoleNoAPI : targetID) == 'Operator'" (click)="kickUser(targetUserID)">
+							<i class="bi bi-ban"></i>
+						</button>
+					</span>
+				</ng-container>
 			</div>
 		</div>
 		<h5>Channels</h5>
@@ -62,7 +71,10 @@
 				<input class="channel-name-input" [(ngModel)]="channelName" (keyup.enter)="submitCreateChannel()" (input)="onChannelInput($event)" placeholder="New channel">
 			</div>
 		</div>
-		<h5 *ngIf="(user | getRoleNoAPI : targetID) != 'User'">Actions</h5>
+		<h5>Actions</h5>
+		<div class="d-grid gap-3 mb-3" *ngIf="(userID | getRoleByID : targetID | async) != 'Operator'">
+			<button class="btn btn-outline-danger" (click)="leaveGroup()">Leave Group</button>
+		</div>
 		<div class="d-grid gap-3 mb-3" *ngIf="(userID | getRoleByID : targetID | async) != 'User'">
 			<button class="btn btn-outline-danger" (click)="deleteGroup()">Delete Group</button>
 		</div>

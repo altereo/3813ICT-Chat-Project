@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, TemplateRef, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, RouterLink, RouterOutlet, Router } from '@angular/router';
@@ -11,8 +11,9 @@ import {
   NgbModal,
   NgbModalRef
 } from '@ng-bootstrap/ng-bootstrap';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
+import { GetUserPipe } from '../pipes/get-user.pipe';
 import { TruncatePipe } from '../pipes/truncate.pipe';
 import { GetRoleByIDPipe } from '../pipes/get-role-by-id.pipe';
 import { GetRoleNoAPIPipe } from '../pipes/get-role-no-api.pipe';
@@ -39,18 +40,22 @@ import { ChatApiService, User, Group, Channel } from '../chat-api.service';
     GetUsernameByIDPipe,
     TruncatePipe,
     GetRoleByIDPipe,
-    GetRoleNoAPIPipe
+    GetRoleNoAPIPipe,
+    GetUserPipe
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
+  @ViewChild('groupModal', {static: false}) groupModal!: TemplateRef<any>;
+
   user: User | null = null;
   userID: number = -1;
   groups: Observable<Group[]>;
   
   targetID: number = -1;
   targetGroup: Group | undefined = undefined;
+  changeDetectionTicket: number = 0;
 
   // Form stuff.
   private offCanvasRef: NgbOffcanvasRef | null = null;
@@ -60,6 +65,9 @@ export class HomeComponent implements OnInit {
   newGroupName: string = "";
   joinCode: string = "";
 
+  isMe = (id: number) => this.userID === id;
+
+
   hasAdminRole() {
     if (!this.user) return(false);
     if (!this.user.roles) return(false);
@@ -67,9 +75,20 @@ export class HomeComponent implements OnInit {
     return(this.user.roles.filter((role: string) => role.includes('ADMIN')).length > 0);
   }
 
+  getHighestRole(groupID: number) {
+    if (!this.user) return(0);
+    if (!this.user.roles) return(0);
+
+    if (this.user.roles.includes("SUPERADMIN")) return(2);
+    if (this.user.roles.filter((role: string) => role.includes(`${groupID}::`))) return(1);
+
+    return(0);
+  }
+
   updateCachedGroup() {
     let groupsList = this.chatApiService.getGroupsValue();
     this.targetGroup = groupsList.find((group: Group) => group.id === this.targetID);
+    this.changeDetectionTicket = this.chatApiService.generateID(8);
     this.groupName = this.targetGroup?.name || "";
 
     this.cdr.detectChanges();
@@ -91,6 +110,21 @@ export class HomeComponent implements OnInit {
         this.chatApiService.getGroups(this.userID);
         this.chatApiService.announceGroupChange();
         return;
+      }
+    });
+    return;
+  }
+
+  leaveGroup() {
+    this.chatApiService.removeUserFromServer(this.userID, this.targetGroup?.id || -1, this.userID).subscribe((data: any) => {
+      if (data.status === "OK") {
+        this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
+        if (this.offCanvasRef) {
+          this.offCanvasRef.close();
+        }
+
+        this.router.navigateByUrl("/home");
       }
     });
     return;
@@ -218,6 +252,21 @@ export class HomeComponent implements OnInit {
       return;
     });
 
+    return;
+  }
+
+  promoteDemoteUser(id: number, level: number) {
+    this.chatApiService.promoteDemoteUser(
+      this.targetID,
+      id,
+      level,
+      this.userID
+    ).subscribe((data: any) => {
+      if (data.status === "OK") {
+        this.chatApiService.getGroups(this.userID);
+        this.chatApiService.announceGroupChange();
+      }
+    })
     return;
   }
 

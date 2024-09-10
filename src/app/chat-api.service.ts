@@ -341,6 +341,21 @@ export class ChatApiService {
     return;
   }
 
+  promoteDemoteUser(group: number, user: number, level: number, executor: number) {
+    let body = {
+      "group": group,
+      "user": user,
+      "role": level,
+      "executor": executor
+    };
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/user/promote`, body, httpOptions));
+  }
+
+  // Fetch data of a user by ID.
+  fetchUserData(id: number) {
+    return(this.httpClient.get(`${BACKEND_URL}/api/chat/users/${id}`));
+  }
+
   // Getters for any multicast observables we have.
   get user(): Observable<User> {
     return(this.user$.asObservable());

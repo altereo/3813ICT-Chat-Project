@@ -70,7 +70,7 @@ router
 	let data = req.body;
 	let executor = getUser(data.executor);
 
-	if (getHighestForGroup(data.executor, data.group) >= 1) {
+	if (getHighestForGroup(data.executor, data.group) >= 1 || data.user === data.executor) {
 		if (getHighestForGroup(data.user, data.group) === 2) {
 			res.json({
 				"status": "ERROR",
@@ -86,6 +86,12 @@ router
 		});
 		return;
 	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "Insufficient privelages."
+	});
+	return;
 })
 
 // Rename group.
@@ -107,6 +113,12 @@ router
 		});
 		return;
 	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "Insufficient privelages."
+	});
+	return;
 })
 
 // Approve/reject request to join.
@@ -184,6 +196,12 @@ router
 		});
 		return;
 	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "Insufficient privelages."
+	});
+	return;
 })
 
 // delete a group.
@@ -281,26 +299,35 @@ router
 	return;
 })
 
-// Send message to channel as user.
-// Requires:
-// 	 group,
-//   channel,
-//   executor,
-//   message
-.post('/messages/send', (req, res) => {
-	let messageData = req.body;
+// Get user details.
+.get('/users/:userID', (req, res) => {
+	let userID = req.params.userID;
 	res.json({
-		"status": "NOT_IMPLEMENTED"
+		"status": "OK",
+		"user": getUser(userID) || {}
 	});
 	return;
 })
 
 // Change the permissions of the user.
 // Requres: group, user, role, executor
+// Role = 0: User
+// Role = 1: Admin
+// Role = 2: Operator (Superadmin)
 .post('/group/user/promote', (req, res) => {
 	let data = req.body;
+	let executorLevel = getHighestForGroup(data.executor, data.group);
+	if (executorLevel >= 1 && executorLevel >= data.role) {
+		storage.setPermissions(data.user, data.group, data.role);
+		res.json({
+			"status": "OK",
+			"message": ""
+		});
+		return;
+	}
 	res.json({
-		"status": "NOT_IMPLEMENTED"
+		"status": "ERROR",
+		"message": "Insufficient privelages."
 	});
 	return;
 });

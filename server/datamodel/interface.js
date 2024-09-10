@@ -219,6 +219,37 @@ function createGroup(name, user) {
 	users[users.findIndex((item) => item.id === user)].roles.push(`${groupID}::ADMIN`);
 }
 
+function setPermissions(userID, groupID, level) {
+	let userIndex = users.findIndex((user) => user.id === userID);
+	if (level === 2) {
+		users[userIndex].roles.push("SUPERADMIN");
+		users[userIndex].roles = [...new Set(users[userIndex].roles)];
+		return;
+	} else if (level === 1) {
+		let roleIndex = users[userIndex].roles.indexOf("SUPERADMIN");
+		if (roleIndex !== -1) {
+			users[userIndex].roles.splice(roleIndex, 1);
+		}
+		users[userIndex].roles.push(`${groupID}::ADMIN`);
+		users[userIndex].roles = [...new Set(users[userIndex].roles)];
+
+		return;
+	} else if (level === 0) {
+		let sRoleIndex = users[userIndex].roles.indexOf("SUPERADMIN");
+		let aRoleIndex = users[userIndex].roles.indexOf(`${groupID}::ADMIN`);
+		
+		if (sRoleIndex !== -1) {
+			users[userIndex].roles.splice(sRoleIndex, 1);
+		}
+		if (aRoleIndex !== -1) {
+			users[userIndex].roles.splice(aRoleIndex, 1);
+		}
+		users[userIndex].roles = [...new Set(users[userIndex].roles)];
+
+		return;
+	}
+}
+
 function updateUserImage(filename, userID) {
 	let userIndex = users.findIndex((user) => user.id === userID);
 	if (userIndex !== -1) {
@@ -239,5 +270,6 @@ module.exports = {
 	deleteChannel,
 	deleteGroup,
 	createGroup,
-	updateUserImage
+	updateUserImage,
+	setPermissions
 };

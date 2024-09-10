@@ -33,7 +33,7 @@ router
 			return(res.status(400).send('Tabula Rasa :: Empty request.'));
 		}
 
-		// Create a filename and path.
+		// Create a filename and path. filename should be swapped for user id later,
 		let fileName = `${Date.now()}-${generateID(5)}.webp`;
 		let filePath = path.join(`${CDN_DIR}/avatar`, fileName);
 
