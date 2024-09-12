@@ -92,7 +92,7 @@
 }
 
 .image-upload-button {
-	background-color: #074f96;
+	background-color: #1368bc;
 	border-radius: 50%;
 	width: 24px;
 	height: 24px;
@@ -122,4 +122,13 @@
 
 .image-upload-button:hover > i.bi {
 	color: white;
+}
+
+.modal-content {
+	display: flex;
+	flex-direction: column;
+}
+
+.cropper-container {
+	height: 500px;
 }

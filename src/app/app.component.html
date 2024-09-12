@@ -21,6 +21,17 @@
 	<a class="logout-button" (click)="triggerLogout()">Logout</a>
 </ng-template>
 
+<ng-template #imgEditDialog let-modal>
+	<div class="modal-body">
+		<div class="cropper-container">
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-secondary" (click)="resetCropper()">Reset</button>
+		<button type="button" class="btn btn-outline-primary" (click)="changeProfilePicture()">OK</button>
+	</div>
+</ng-template>
+
 <span class="header">
 	<p class="heading-text">3813ICT Chat Application</p>
 	<button type="button" [ngbPopover]="accountDialog" [popoverTitle]="'Manage Account'" [autoClose]="'outside'" class="btn btn-outline-secondary account-button" *ngIf="(user | async)?.valid">
