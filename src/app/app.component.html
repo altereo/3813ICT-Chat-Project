@@ -1,8 +1,33 @@
+<ng-template #accountDialog>
+	<div class="account-details-container">
+		<div class="avatar-display">
+			<img class="account-image" src="{{(user | async)?.image || 'http://127.0.0.1:3000/avatar/default.webp'}}">
+			<label for="account-image-input">
+				<div class="image-upload-button">
+					<input class="file-input hidden" type="file" [(ngModel)]="fileInput" id="account-image-input" accept="image/*" (change)="onFileChange($event)" />
+					<i class="bi bi-pencil-fill"></i>
+				</div>
+			</label>
+		</div>
+		<div class="account-details">
+			<span class="account-name">
+				{{(user | async)?.username}}
+			</span>
+			<span class="account-email">
+				{{(user | async)?.email}}
+			</span>
+		</div>
+	</div>
+	<a class="logout-button" (click)="triggerLogout()">Logout</a>
+</ng-template>
+
 <span class="header">
 	<p class="heading-text">3813ICT Chat Application</p>
-	<span *ngIf="(user | async)?.valid">
-		You are logged in as <b>{{(user | async)?.username}}</b>. 
-		<a class="logout-button" (click)="triggerLogout()">Logout</a>
-	</span>
+	<button type="button" [ngbPopover]="accountDialog" [popoverTitle]="'Manage Account'" [autoClose]="'outside'" class="btn btn-outline-secondary account-button" *ngIf="(user | async)?.valid">
+		<img class="account-image-icon" src="{{(user | async)?.image || 'http://127.0.0.1:3000/avatar/default.webp'}}">
+		<span class="button-text">
+			{{(user | async)?.username}}
+		</span>
+	</button>
 </span>
 <router-outlet />

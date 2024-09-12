@@ -2,7 +2,7 @@
 	border-bottom: 1px solid var(--subtlegray);
 	padding: 16px;
 	display: inline-flex;
-	padding-bottom: 17.5px;
+	padding-top: 17.5px;
 }
 
 .chat-header > * {
@@ -55,7 +55,6 @@
 
 .btn#upload-button > i {
 	font-size: 24px;
-	line-height: 0;
 }
 
 .input-view {
@@ -66,10 +65,11 @@
 	border-radius: 4px;
 	margin-top: 4px;
 	display: flex;
+	align-items: center;
 }
 
 .chat-subwindow {
-	height: 80%;
+	height: 79.5%;
 }
 
 .date-text {
