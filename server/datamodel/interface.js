@@ -253,8 +253,9 @@ function setPermissions(userID, groupID, level) {
 function updateUserImage(filename, userID) {
 	let userIndex = users.findIndex((user) => user.id === userID);
 	if (userIndex !== -1) {
-		users[userIndex].image = `/avatar/${filename}`;
+		users[userIndex].image = `${filename}`;
 	}
+
 	return;
 }
 

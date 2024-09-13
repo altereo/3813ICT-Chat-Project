@@ -6,6 +6,10 @@ import { io, Socket } from 'socket.io-client';
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
+
+const formHttpOptions = {
+  headers: new HttpHeaders({ 'enctype': 'multipart/form-data' })
+};
 const BACKEND_URL = "http://127.0.0.1:3000";
 
 // Type template for user object.
@@ -349,6 +353,22 @@ export class ChatApiService {
       "executor": executor
     };
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/user/promote`, body, httpOptions));
+  }
+
+  uploadNewAvatar(user: number, file: Blob) {
+    let body = new FormData();
+    body.append("user", `${user}`);
+    body.append("file", file);
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/upload/avatar`, body, formHttpOptions));
+  }
+
+  updateOwnAvatar(newURL: string) {
+    this.store("user", {
+      ...this.getUser(),
+      image: newURL
+    });
+    return;
   }
 
   // Fetch data of a user by ID.

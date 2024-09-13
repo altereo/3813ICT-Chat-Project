@@ -41,8 +41,6 @@
 
 .btn#upload-button {
 	color: rgba(255, 255, 255, 0.7);
-	position: relative;
-	top: -4px;
 }
 
 .btn#upload-button:hover {

@@ -63,7 +63,8 @@ export class ChatComponent implements OnInit {
         let lastGroup = this.messages[this.messages.length - 1];
         if (
           data.date - lastGroup[lastGroup.length - 1].date <= 90000 && data.author &&
-          data.author?.id === lastGroup[lastGroup.length - 1].author?.id
+          data.author?.id === lastGroup[lastGroup.length - 1].author?.id &&
+          data.author?.image === lastGroup[lastGroup.length - 1].author?.image
         ) {
           this.messages[this.messages.length - 1].push(data);
         } else {

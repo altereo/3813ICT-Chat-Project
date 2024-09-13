@@ -8,7 +8,7 @@ const path = require('path');
 const fs = require('fs');
 
 const storage = require('../datamodel/interface.js');
-const CDN_DIR = "../www";
+const CDN_DIR = `${__dirname}/../www`;
 
 // Multer storage for working with form images in memory.
 const store = multer.memoryStorage();
@@ -22,11 +22,36 @@ function generateID(length) {
 	return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
 }
 
+const getUser = (id) => {
+	let user = storage.getTable("users").find(user => user.id == id);
+	if (!user) return({"username": ""});
+
+	return(user);
+}
+
+async function doesFileExist(filePath) {
+	try {
+		await fs.promises.stat(filePath);
+		return(true)
+	} catch (err) {
+		if (err.code === "ENOENT") {
+			return(false);
+		} else {
+			throw(err);
+		}
+	} 
+}
+
 router
 
 // Upload avatar image.
-.post('/avatar', upload.single('image'), async (req, res) => {
+// user, file (blob)
+.post('/avatar', upload.single('file'), async (req, res) => {
 	let userID = req.body.user;
+	if (userID === -1) {
+		res.status(403).send(`Invalid user ID.`);
+		return;
+	}
 
 	try {
 		if (!req.file) {
@@ -34,8 +59,10 @@ router
 		}
 
 		// Create a filename and path. filename should be swapped for user id later,
-		let fileName = `${Date.now()}-${generateID(5)}.webp`;
+		let fileName = `${userID}-${generateID(6)}.webp`;
 		let filePath = path.join(`${CDN_DIR}/avatar`, fileName);
+
+		// Remove existing profile picture.
 
 		// Resize, crop, convert.
 		await sharp(req.file.buffer)
@@ -43,13 +70,23 @@ router
 			.toFormat('webp')
 			.toFile(filePath);
 
-		storage.updateUserImage(fileName, userID);
+		// Delete existing profile image.
+		let originalPath = getUser(+userID).image;
+		if (originalPath) {
+			let cloudedPath = path.join(`${CDN_DIR}/avatar`, originalPath);
+			if (doesFileExist(cloudedPath)) {
+				await fs.promises.unlink(cloudedPath);
+			}
+		}
+
+		storage.updateUserImage(fileName, +userID);
 		res.status(200).json({
 			"status": "OK",
-			"message": `/avatar/${fileName}`
+			"message": `${fileName}`
 		});
 	} catch (err) {
-		res.status(500).send("Internal server error.");
+		console.error(err);
+		res.status(500).send(`Internal server error.`);
 	}
 })
 

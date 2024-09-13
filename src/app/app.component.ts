@@ -34,6 +34,7 @@ export class AppComponent implements OnInit {
   private editDialogRef: NgbModalRef | null = null;
 
   user: Observable<User>;
+  userID: number = -1;
   isLoggedIn: boolean = false;
 
   fileInput: string = "";
@@ -59,14 +60,37 @@ export class AppComponent implements OnInit {
     return;
   }
 
-  changeProfilePicture() {
-    if (this.editDialogRef) {
-      
+  async changeProfilePicture() {
+    let croppedImage = await this.crop();
+    
+    if (croppedImage) {
+      this.chatApiService.uploadNewAvatar(this.userID, croppedImage).subscribe((data: any) => {
+        if (data.status === "OK") {
+          this.profileImage = "";
+          if (this.editDialogRef) {
+            this.editDialogRef.close();
+          }
 
-      this.profileImage = "";
-      this.editDialogRef.close();
+          this.chatApiService.updateOwnAvatar(data.message);
+          this.chatApiService.getGroups(this.userID);
+          this.chatApiService.announceGroupChange();
+        }
+        return;
+      })
     }
     return;
+  }
+
+  async crop(): Promise<Blob | null> {
+    let selection = this.cropperInstance.getCropperSelection();
+    if (selection) {
+      let canvas = await selection.$toCanvas();
+      let croppedImage = await new Promise<Blob | null>(image => canvas.toBlob(image, 'image/png'));
+      
+      return(croppedImage);
+    }
+
+    return(null);
   }
 
   resetCropper() {
@@ -142,5 +166,8 @@ export class AppComponent implements OnInit {
 
   constructor (private router:Router, private modalService: NgbModal, private chatApiService: ChatApiService) {
     this.user = this.chatApiService.user;
+    this.user.subscribe((data: User) => {
+      this.userID = data.id;
+    });
   }
 }

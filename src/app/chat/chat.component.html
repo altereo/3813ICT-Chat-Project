@@ -7,7 +7,7 @@
 	<div class="chat-view container-fluid">
 		<div class="message" *ngFor="let messageGroup of messages">
 			<span class="profile-container">
-				<img src="{{messageGroup[0].author?.image || 'http://127.0.0.1:3000/avatar/default.webp'}}" class="profile-image">
+				<img src="{{'http://localhost:3000/avatar/' + (messageGroup[0].author?.image || 'default.webp')}}" class="profile-image">
 			</span>
 			<span>
 				<span class="name-display">
