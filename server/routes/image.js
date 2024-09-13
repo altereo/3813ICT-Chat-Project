@@ -58,11 +58,9 @@ router
 			return(res.status(400).send('Tabula Rasa :: Empty request.'));
 		}
 
-		// Create a filename and path. filename should be swapped for user id later,
+		// Create a filename and path.
 		let fileName = `${userID}-${generateID(6)}.webp`;
 		let filePath = path.join(`${CDN_DIR}/avatar`, fileName);
-
-		// Remove existing profile picture.
 
 		// Resize, crop, convert.
 		await sharp(req.file.buffer)
@@ -88,6 +86,35 @@ router
 		console.error(err);
 		res.status(500).send(`Internal server error.`);
 	}
+	return;
+})
+
+// Upload image. Returns url for attachment to message.
+.post('/image', upload.single('file'), async(req, res) => {
+	try {
+		if (!req.file) {
+			return(res.status(400).send("Tabula Rasa :: Empty request."));
+		}
+
+		// Generate filename and path.
+		let fileName = `${Date.now()}-${generateID(8)}.webp`;
+		let filePath = path.join(`${CDN_DIR}/uploads`, fileName);
+
+		// Convert.
+		await sharp(req.file.buffer)
+			.toFormat('webp')
+			.toFile(filePath)
+
+		// Respond with new filename.
+		res.status(200).json({
+			"status": "OK",
+			"filename": fileName
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Internal server error.");
+	}
+	return;
 })
 
 module.exports = router;

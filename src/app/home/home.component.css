@@ -62,7 +62,7 @@
 }
 
 .chat-window {
-	height: calc(100vh - 24px);
+	height: auto;
 	border-left: 1px solid var(--subtlegray);
 	padding: 0;
 }

@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, TemplateRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule, RouterLink, RouterOutlet, Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -14,6 +15,7 @@ import { ChatApiService, User, Group, Channel, Message } from '../chat-api.servi
   styleUrl: './chat.component.css'
 })
 export class ChatComponent implements OnInit {
+  @ViewChild('messageInput', {static: false}) private messageInputElement!: ElementRef<HTMLInputElement>;
   private serverID = "";
   private channelID = "";
   chatTitle = "";
@@ -21,21 +23,84 @@ export class ChatComponent implements OnInit {
 
   // Bind the input box so we can clear it later.
   message = "";
+  fileInput = "";
+  blobURL = "";
+  toUpload: File | null = null;
+
+  // For larger image view.
+  modalRef: NgbModalRef | null = null;
+  imageURL = "";
 
   // Get human friendly date from Date.now().
   getDate(date: number) {
     return(new Date(date).toLocaleString('en-GB'));
   }
 
+  // On file input change.
+  onFileChange(event: any) {
+    let files = event.target.files as FileList;
+
+    if (files.length > 0) {
+      let _file = URL.createObjectURL(files[0]);
+      this.blobURL = _file;
+      this.toUpload = files[0];
+      this.fileInput = "";
+    }
+
+    this.messageInputElement.nativeElement.focus();
+    return;
+  }
+
+  // Clear the upload.
+  clearUpload() {
+    this.toUpload = null;
+    this.blobURL = "";
+  }
+
+  // Send message.
   sendMessage(newMessage: string) {
-    this.chatApiService.emitMessage(
-      +this.serverID,
-      +this.channelID,
-      this.chatApiService.getUser().id,
-      this.message
-    );
+    if (!this.toUpload) {
+      this.chatApiService.emitMessage(
+        +this.serverID,
+        +this.channelID,
+        this.chatApiService.getUser().id,
+        this.message,
+        null
+      );
+    } else {
+      // Upload the image first.
+      let toSend = this.message;
+      if (this.toUpload) {
+        this.chatApiService.uploadImage(this.toUpload).subscribe((data: any) => {
+          this.chatApiService.emitMessage(
+            +this.serverID,
+            +this.channelID,
+            this.chatApiService.getUser().id,
+            toSend,
+            data.filename
+          );
+        });
+
+        this.clearUpload();
+      }
+    }
 
     this.message = "";
+    return;
+  }
+
+  openImageViewer(url: string, content: TemplateRef<any>) {
+    this.imageURL = url;
+    this.modalRef = this.modalService.open(content, {
+      centered: true,
+      modalDialogClass: "image-viewer-modal"
+    });
+
+    document.querySelector(".viewer-container")?.addEventListener('click', (event) => {
+      if (this.modalRef) {
+        this.modalRef?.dismiss();
+      }
+    })
     return;
   }
 
@@ -75,5 +140,10 @@ export class ChatComponent implements OnInit {
     });
   }
 
-  constructor(private router:Router, private route: ActivatedRoute, private chatApiService: ChatApiService) { }
+  constructor(
+    private router:Router,
+    private route: ActivatedRoute,
+    private chatApiService: ChatApiService,
+    private modalService: NgbModal
+  ) { }
 }

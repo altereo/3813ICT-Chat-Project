@@ -1,3 +1,9 @@
+<ng-template #imageViewer let-modal>
+	<div class="viewer-container">
+		<img class="viewer-image" src="{{imageURL}}">
+	</div>
+</ng-template>
+
 <div class="d-flex flex-column chat-subwindow">
 	<div class="container chat-header">
 		<h5>
@@ -5,26 +11,44 @@
 		</h5>
 	</div>
 	<div class="chat-view container-fluid">
-		<div class="message" *ngFor="let messageGroup of messages">
-			<span class="profile-container">
-				<img src="{{'http://localhost:3000/avatar/' + (messageGroup[0].author?.image || 'default.webp')}}" class="profile-image">
-			</span>
-			<span>
-				<span class="name-display">
-					{{messageGroup[0].author?.username}} <span class="date-text">[{{getDate(messageGroup[0].date)}}]</span>
-				</span>
-				<div class="message-singleton" *ngFor="let message of messageGroup">
-					{{message.text}}
+		<div class="scroller">
+			<div class="scroller-content">
+				<div class="message" *ngFor="let messageGroup of messages">
+					<span class="profile-container">
+						<img src="{{'http://localhost:3000/avatar/' + (messageGroup[0].author?.image || 'default.webp')}}" class="profile-image">
+					</span>
+					<span>
+						<span class="name-display">
+							{{messageGroup[0].author?.username}} <span class="date-text">[{{getDate(messageGroup[0].date)}}]</span>
+						</span>
+						<div class="message-singleton" *ngFor="let message of messageGroup">
+							<span>{{message.text}}</span>
+							<div class="image-container">
+								<img class="message-image" *ngIf="message.image" src="{{'http://localhost:3000/uploads/' + message.image}}" (click)="openImageViewer('http://localhost:3000/uploads/' + message.image, imageViewer)">
+							</div>
+						</div>
+					</span>
 				</div>
-			</span>
+			</div>
 		</div>
 	</div>
 	<div class="message-bar">
-		<div class="input-view">
-			<div class="btn btn-link" id="upload-button" title="Upload file">
-				<i class="bi bi-plus-circle-fill"></i>
+		<div class="message-bar-inner">
+			<div class="image-upload-view" *ngIf="blobURL">
+				<img class="upload-preview" src="{{blobURL}}">
+				<div class="btn clear-button" (click)="clearUpload()">
+					<i class="bi bi-x"></i>
+				</div>
 			</div>
-			<input class="input-box" (keyup.enter)="sendMessage($any($event).target.value)" [(ngModel)]="message" maxlength=2048 />
+			<div class="input-view">
+				<label for="image-upload">
+					<div class="btn btn-link" id="upload-button" title="Upload file">
+						<i class="bi bi-plus-circle-fill"></i>
+						<input class="file-input hidden" type="file" [(ngModel)]="fileInput" id="image-upload" accept="image/*" (change)="onFileChange($event)" />
+					</div>
+				</label>
+				<input #messageInput class="input-box" (keyup.enter)="sendMessage($any($event).target.value)" [(ngModel)]="message" maxlength=2048 />
+			</div>
 		</div>
 	</div>
 </div>

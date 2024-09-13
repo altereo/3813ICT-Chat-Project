@@ -87,6 +87,8 @@ export class ChatApiService {
     // Listeners.
     this.socket?.on('connect', () => {
       console.debug("Connected to socket server.");
+      this.updateUser();
+
       return;
     });
 
@@ -132,16 +134,16 @@ export class ChatApiService {
     return;
   }
 
-  emitMessage(group: number, channel: number, author: number, text: string): void {
-    if (text === "") return;
-
+  emitMessage(group: number, channel: number, author: number, text: string, image: string | null): void {
+    if (text === "" && !image) return;
+    
     this.socket?.emit('message', {
       group,
       channel,
       author,
       text,
       id: this.generateID(8),
-      image: null
+      image: image || null
     });
     return;
   }
@@ -363,12 +365,31 @@ export class ChatApiService {
     return(this.httpClient.post(`${BACKEND_URL}/api/upload/avatar`, body, formHttpOptions));
   }
 
+  uploadImage(file: Blob) {
+    let body = new FormData();
+    body.append("file", file);
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/upload/image`, body, formHttpOptions));
+  }
+
   updateOwnAvatar(newURL: string) {
     this.store("user", {
       ...this.getUser(),
       image: newURL
     });
     return;
+  }
+
+  updateUser() {
+    let id = this.getUser()?.id;
+    if (id && this.getUser()?.valid) {
+      this.fetchUserData(id).subscribe((data: any) => {
+        this.store("user", {
+          ...data.user,
+          valid: true
+        });
+      })
+    }
   }
 
   // Fetch data of a user by ID.
