@@ -112,6 +112,8 @@ export class ChatComponent implements OnInit {
         this.channelID = path[1];
 
         this.chatTitle = this.chatApiService.getChatTitle(+this.serverID, +this.channelID);
+        this.messages = [];
+        
         if (this.chatTitle === "") {
           this.router.navigateByUrl("/home");
         }

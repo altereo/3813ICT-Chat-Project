@@ -5,19 +5,12 @@ function generateID(length) {
 	return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
 }
 
-const getUser = (id) => {
-	let user = storage.getTable("users").find(user => user.id == id);
-	if (!user) return({"username": ""});
-
-	return(user);
-}
-
 module.exports = {
 	connect: (io, PORT) => {
 		io.on('connection', (socket) => {
 			logger.log('sock', `[ ${socket.id} ] connected.`);
 
-			socket.on('message', (message) => {
+			socket.on('message', async (message) => {
 				logger.log('evnt', `${message?.author || socket.id} MESG ${message.group}::${message.channel}`);
 				io.emit('message', {
 					group: message.group,
@@ -25,7 +18,7 @@ module.exports = {
 					id: message.id,
 					text: message.text,
 					image: message.image,
-					author: getUser(message.author),
+					author: await storage.getUser(message.author) || null,
 					date: Date.now()
 				});
 			});

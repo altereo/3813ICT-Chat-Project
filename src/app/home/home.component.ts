@@ -308,6 +308,7 @@ export class HomeComponent implements OnInit {
       });
 
       this.chatApiService.onGroupChanged().subscribe((id: number) => {
+        this.chatApiService.updateUser();
         this.chatApiService.getGroups(this.userID);
       })
     }

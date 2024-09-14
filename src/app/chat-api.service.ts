@@ -136,7 +136,7 @@ export class ChatApiService {
 
   emitMessage(group: number, channel: number, author: number, text: string, image: string | null): void {
     if (text === "" && !image) return;
-    
+
     this.socket?.emit('message', {
       group,
       channel,
@@ -382,7 +382,7 @@ export class ChatApiService {
 
   updateUser() {
     let id = this.getUser()?.id;
-    if (id && this.getUser()?.valid) {
+    if (id && this.getUser().valid) {
       this.fetchUserData(id).subscribe((data: any) => {
         this.store("user", {
           ...data.user,

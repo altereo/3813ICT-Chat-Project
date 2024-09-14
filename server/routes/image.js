@@ -17,18 +17,6 @@ const upload = multer({
 	limits: { fileSize: 5e7 }
 });
 
-function generateID(length) {
-	if (length < 1) return(-1);
-	return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
-}
-
-const getUser = (id) => {
-	let user = storage.getTable("users").find(user => user.id == id);
-	if (!user) return({"username": ""});
-
-	return(user);
-}
-
 async function doesFileExist(filePath) {
 	try {
 		await fs.promises.stat(filePath);
@@ -59,7 +47,7 @@ router
 		}
 
 		// Create a filename and path.
-		let fileName = `${userID}-${generateID(6)}.webp`;
+		let fileName = `${userID}-${storage.generateID(6)}.webp`;
 		let filePath = path.join(`${CDN_DIR}/avatar`, fileName);
 
 		// Resize, crop, convert.
@@ -69,7 +57,7 @@ router
 			.toFile(filePath);
 
 		// Delete existing profile image.
-		let originalPath = getUser(+userID).image;
+		let originalPath = await storage.getUser(+userID).image;
 		if (originalPath) {
 			let cloudedPath = path.join(`${CDN_DIR}/avatar`, originalPath);
 			if (doesFileExist(cloudedPath)) {
@@ -77,7 +65,7 @@ router
 			}
 		}
 
-		storage.updateUserImage(fileName, +userID);
+		await storage.updateUserImage(fileName, +userID);
 		res.status(200).json({
 			"status": "OK",
 			"message": `${fileName}`
@@ -97,7 +85,7 @@ router
 		}
 
 		// Generate filename and path.
-		let fileName = `${Date.now()}-${generateID(8)}.webp`;
+		let fileName = `${Date.now()}-${storage.generateID(8)}.webp`;
 		let filePath = path.join(`${CDN_DIR}/uploads`, fileName);
 
 		// Convert.

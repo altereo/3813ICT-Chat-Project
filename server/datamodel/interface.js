@@ -1,3 +1,4 @@
+const logger = require('../logger.js');
 /*
 	ROLE VALUES
 	- SUPERADMIN	
@@ -48,7 +49,7 @@ var users = [
 	}
 ];
 
-const groups = [
+var groups = [
 	{
 		"id": 324123246245,
 		"name": "Test Server",
@@ -85,192 +86,327 @@ const groups = [
 	}
 ]
 
+var messages = {};
+
 
 const tableSet = {
 	users,
-	groups
+	groups,
+	messages
 };
 
-function getTable(type) {
-	return(tableSet[type]);
-}
+var groupsCollection;
+var usersCollection;
+var messagesCollection;
 
-function generateID(length) {
+const generateID = (length) => {
 	if (length < 1) return(-1);
 	return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
-}
-
-function tryCreateUser(username, email, password) {
-	let userCheck = users.find(cred => cred.email === email);	// Check for existing user with that email.
-	if (userCheck || !email || !username || !password) {
-		return("ERROR");
-	} else {
-		let newUser = {
-			"email": email,
-			"username": username,
-			"password": password,
-			"roles": [],
-			"groups": [],
-			"image": "",
-			"id": generateID(9) // Might risk ID collision but who cares.
-		}
-
-		users.push(newUser);
-		return("OK");
-	}
-}
-
-function removeGroupFromUser(userID, groupID) {
-	let userIndex = users.findIndex((user) => user.id === userID);
-	if (userIndex === -1) return;
-
-	let groupIndex = users[userIndex].groups.indexOf(groupID);
-	if (groupIndex !== -1) {
-		let groupsIndex = groups.findIndex((group) => group.id === groupID);
-		users[userIndex].groups = users[userIndex].groups.splice(groupIndex, 1);
-		users[userIndex].roles.splice(
-			users[userIndex].roles.findIndex((role) => role.startsWith(`${groupID}::`)),
-			1
-		);
-		groups[groupsIndex].users.splice(groups[groupsIndex].users.indexOf(userID));
-	}
-	return;
-}
-
-function removeRequest(userID, groupID) {
-	let groupIndex = groups.findIndex((group) => group.id === groupID);
-	let requestIndex = groups[groupIndex].joinRequests.findIndex((req) => req === userID);
-	if (groupIndex === -1 || requestIndex === -1) return;
-
-	groups[groupIndex].joinRequests.splice(requestIndex, 1);
-	return;
-}
-
-function addRequest(userID, groupID) {
-	let groupIndex = groups.findIndex((group) => group.id === groupID);
-	if (
-		!groups[groupIndex].users.includes(userID) &&
-		!groups[groupIndex].joinRequests.includes(userID)
-	) {
-		groups[groupIndex].joinRequests.push(userID);
-	}
-	return;
-}
-
-function addUserToGroup(userID, groupID) {
-	let userIndex = users.findIndex((user) => user.id === userID);
-	let groupIndex = groups.findIndex((group) => group.id === groupID);
-	if (userIndex === -1 || groupIndex === -1) return;
-
-	if (!users[userIndex].groups.includes(groupID)) {
-		users[userIndex].groups.push(groupID);
-	}
-
-	if (!groups[groupIndex].users.includes(userID)) {
-		groups[groupIndex].users.push(userID);
-	}
-	return;
-}
-
-function renameGroup(groupID, newName) {
-	groups[groups.findIndex((group) => group.id === groupID)].name = newName;
-	return;
-}
-
-function createChannel(groupID, channelName) {
-	groups[groups.findIndex((group) => group.id === groupID)].channels.push({
-		"id": generateID(8),
-		"name": channelName
-	});
-	return;
-}
-
-function deleteChannel(groupID, channelID) {
-	let groupIndex = groups.findIndex((group) => group.id === groupID);
-
-	groups[groupIndex].channels.splice(
-		groups[groupIndex].channels.findIndex((channel) => channel.id === channelID), 1
-	)
-	return;
-}
-
-function deleteGroup(groupID) {
-	groups.splice(groups.findIndex((group) => group.id === groupID), 1);
-
-	return;
-}
-
-function createGroup(name, user) {
-	let groupID = generateID(12);
-	groups.push({
-		"id": groupID,
-		"name": name,
-		"channels": [
-			{
-				"id": generateID(8),
-				"name": "general"
-			}
-		],
-		"users": [user],
-		"joinRequests": [],
-		"creator": user
-	});
-	addUserToGroup(user, groupID);
-	users[users.findIndex((item) => item.id === user)].roles.push(`${groupID}::ADMIN`);
-}
-
-function setPermissions(userID, groupID, level) {
-	let userIndex = users.findIndex((user) => user.id === userID);
-	if (level === 2) {
-		users[userIndex].roles.push("SUPERADMIN");
-		users[userIndex].roles = [...new Set(users[userIndex].roles)];
-		return;
-	} else if (level === 1) {
-		let roleIndex = users[userIndex].roles.indexOf("SUPERADMIN");
-		if (roleIndex !== -1) {
-			users[userIndex].roles.splice(roleIndex, 1);
-		}
-		users[userIndex].roles.push(`${groupID}::ADMIN`);
-		users[userIndex].roles = [...new Set(users[userIndex].roles)];
-
-		return;
-	} else if (level === 0) {
-		let sRoleIndex = users[userIndex].roles.indexOf("SUPERADMIN");
-		let aRoleIndex = users[userIndex].roles.indexOf(`${groupID}::ADMIN`);
-		
-		if (sRoleIndex !== -1) {
-			users[userIndex].roles.splice(sRoleIndex, 1);
-		}
-		if (aRoleIndex !== -1) {
-			users[userIndex].roles.splice(aRoleIndex, 1);
-		}
-		users[userIndex].roles = [...new Set(users[userIndex].roles)];
-
-		return;
-	}
-}
-
-function updateUserImage(filename, userID) {
-	let userIndex = users.findIndex((user) => user.id === userID);
-	if (userIndex !== -1) {
-		users[userIndex].image = `${filename}`;
-	}
-
-	return;
-}
-
-module.exports = { 
-	getTable,
-	tryCreateUser,
-	removeGroupFromUser,
-	renameGroup,
-	addUserToGroup,
-	removeRequest,
-	addRequest,
-	createChannel,
-	deleteChannel,
-	deleteGroup,
-	createGroup,
-	updateUserImage,
-	setPermissions
 };
+
+module.exports = {
+	init: async (client, DB_NAME) => {
+		if (!client) throw new Error("No MongoDB client supplied.");
+
+		try {
+			await client.connect();
+			logger.log('MONG', 'Connected to database successfully.');
+			db = client.db(DB_NAME);
+
+			client.on('error', (err) => {
+				logger.log('MONG', `Connection encountered an error: ${err}`);
+			});
+
+			client.on('close', () => {
+				logger.log('MONG', "Connection to database server closed.");
+			});
+
+			client.on('reconnect', () => {
+				logger.log("MONG", "Reconnected to MongoDB server.");
+			});
+
+		} catch (err) {
+			logger.log('err', err);
+			throw(err);
+		}
+
+		groupsCollection = db.collection('groups');
+		usersCollection = db.collection('users');
+		messagesCollection = db.collection('messages');
+	},
+
+	getTable: (type) => {
+		return(tableSet[type]);
+	},
+
+	generateID: (length) => {
+		if (length < 1) return(-1);
+		return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
+	},
+
+	getUser: async (userID) => {
+		try {
+			let user = await usersCollection.findOne({ id: +userID });
+			return((user) ? user : {username: "ERROR"});
+		} catch (err) {
+			throw(err);
+		}
+	},
+
+	getGroups: async () => {
+		return((await groupsCollection.find({})).toArray());
+	},
+
+	getGroup: async (groupID) => {
+		try {
+			let group = await groupsCollection.findOne({ id: +groupID });
+			return((group) ? group : {});
+		} catch (err) {
+			throw(err);
+		}
+	},
+
+	validate: async(email, password) => {
+		try {
+			let user = await usersCollection.findOne({ email: email });
+			if (user) {
+				let valid = (user.password === password) || false;
+
+				return({
+					"username": valid && user?.username || null,
+					"email": valid && user?.email || null,
+					"id": valid && user?.id || -1,
+					"roles": valid && user?.roles || [],
+					"groups": valid && user?.groups || [],
+					"valid": valid
+				});
+			}
+		} catch (err) {
+			throw(err);
+		}
+	},
+
+	tryCreateUser: async (username, email, password) => {
+		let userCheck = await usersCollection.findOne({ email: email });	// Check for existing user with that email.
+		if (userCheck || !email || !username || !password) {
+			return("ERROR");
+		} else {
+			let newUser = {
+				"email": email,
+				"username": username,
+				"password": password,
+				"roles": [],
+				"groups": [],
+				"image": "",
+				"id": generateID(9) // Might risk ID collision but who cares.
+			}
+
+			usersCollection.insertOne(newUser);
+			return("OK");
+		}
+	},
+
+	removeGroupFromUser: async (userID, groupID) => {
+		let user = await usersCollection.findOne({ id: +userID });
+		if (!user) return;
+
+		let groupIndex = user.groups.indexOf(groupID);
+		if (groupIndex !== -1) {
+			let group = await groupsCollection.findOne({ id: +groupID });
+			
+			let userUpdates = {
+				$set: {
+					groups: user.groups.toSpliced(groupIndex, 1),
+					roles: user.roles.toSpliced(
+						user.roles.findIndex((role) => role.startsWith(`${groupID}::`)),
+						1
+					)
+				}
+			}
+			let groupUpdates = {
+				$set: {
+					users: group.users.toSpliced(group.users.indexOf(userID), 1)
+				}
+			}
+
+			await usersCollection.updateOne({ id: +userID }, userUpdates);
+			await groupsCollection.updateOne({ id: +groupID }, groupUpdates);
+		}
+		return;
+	},
+
+	removeRequest: async (userID, groupID) => {
+		let group = await groupsCollection.findOne({ id: +groupID });
+		if (!group) return;
+
+		let requestIndex = group.joinRequests.findIndex((req) => req === userID);
+		if (requestIndex === -1) return;
+
+		await groupsCollection.updateOne({ id: +groupID }, {
+			$set: {
+				joinRequests: group.joinRequests.toSpliced(requestIndex, 1)
+			}
+		});
+		return;
+	},
+
+	addRequest: async (userID, groupID) => {
+		let group = await groupsCollection.findOne({ id: +groupID });
+		if (!group) return;
+
+		if (
+			!group.users.includes(userID) &&
+			!group.joinRequests.includes(userID)
+		) {
+			await groupsCollection.updateOne({ id: +groupID }, {
+				$addToSet: {
+					joinRequests: userID
+				}
+			});
+		}
+		return;
+	},
+
+	addUserToGroup: async (userID, groupID) => {
+		let user = await usersCollection.findOne({ id: +userID });
+		let group = await groupsCollection.findOne({ id: +groupID });
+
+		if (!user || !group) return;
+
+		if (!user.groups.includes(groupID)) {
+			await usersCollection.updateOne({ id: +userID }, {
+				$addToSet: {
+					groups: groupID
+				}
+			});
+		}
+
+		if (!group.users.includes(userID)) {
+			await groupsCollection.updateOne({ id: +groupID }, {
+				$addToSet: {
+					users: userID
+				}
+			});
+		}
+		return;
+	},
+
+	renameGroup: async (groupID, newName) => {
+		await groupsCollection.updateOne({ id: +groupID }, {
+			$set: {
+				name: newName
+			}
+		});
+		return;
+	},
+
+	createChannel: async (groupID, channelName) => {
+		await groupsCollection.updateOne({ id: +groupID }, {
+			$addToSet: {
+				channels: {
+					"id": generateID(8),
+					"name": channelName
+				}
+			}
+		})
+		return;
+	},
+
+	deleteChannel: async (groupID, channelID) => {
+		let group = await groupsCollection.findOne({ id: +groupID });
+		if (!group) return;
+
+		await groupsCollection.updateOne({ id: +groupID }, {
+			$set: {
+				channels: group.channels.toSpliced(
+					group.channels.findIndex((channel) => channel.id === channelID), 1
+				) 
+			}
+		});
+		return;
+	},
+
+	deleteGroup: async (groupID) => {
+		let group = await groupsCollection.findOne({ id: +groupID });
+		console.debug(group);
+		await Promise.all(group.users.forEach(async (userID) => {
+			await usersCollection.updateOne({ id: +userID }, {
+				$pull: {
+					groups: groupID,
+					roles: `${groupID}::ADMIN`
+				}
+			})
+		}));
+		await groupsCollection.deleteOne({ id: +groupID });
+		return;
+	},
+
+	createGroup: async (name, user) => {
+		let groupID = generateID(12);
+		await groupsCollection.insertOne({
+			"id": groupID,
+			"name": name,
+			"channels": [
+				{
+					"id": generateID(8),
+					"name": "general"
+				}
+			],
+			"users": [user],
+			"joinRequests": [],
+			"creator": user
+		});
+		
+		await usersCollection.updateOne({ id: +user }, {
+			$addToSet: {
+				groups: groupID,
+				roles: `${groupID}::ADMIN`
+			}
+		});
+
+		return;
+	},
+
+	setPermissions: async (userID, groupID, level) => {
+		let user = await usersCollection.findOne({ id: +userID });
+		if (!user) return;
+
+		if (level === 2) {
+			await usersCollection.updateOne({ id: +userID }, {
+				$addToSet: {
+					roles: "SUPERADMIN"
+				}
+			});
+			return;
+		} else if (level === 1) {
+			await usersCollection.updateOne({ id: +userID }, {
+				$addToSet: {
+					roles: `${groupID}::ADMIN`
+				}
+			});
+
+			await usersCollection.updateOne({ id: +userID }, {
+				$pullAll: {
+					roles: ["SUPERADMIN"]
+				}
+			})
+			return;
+		} else if (level === 0) {
+			await usersCollection.updateOne({ id: +userID }, {
+				$pullAll: {
+					roles: [`${groupID}::ADMIN`, "SUPERADMIN"]
+				}
+			});
+			return;
+		}
+	},
+
+	updateUserImage: async (filename, userID) => {
+		await usersCollection.updateOne({ id: +userID }, {
+			$set: {
+				image: `${filename}`
+			}
+		});
+		return;
+	}
+}

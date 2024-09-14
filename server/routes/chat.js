@@ -3,32 +3,29 @@ const router = express.Router();
 
 const storage = require('../datamodel/interface.js');
 
-const fetchGroups = (id) => {
-	let user = storage.getTable("users").find(user => user.id == id);
+const fetchGroups = async (id) => {
+	let user = await storage.getUser(id);
 	if (!user) return([]);
-	let groups = user.groups.map((id) => getGroup(id));
+
+	if (await isSuperAdmin(id)) {
+		return(await storage.getGroups());
+	}
+
+	let groups = await Promise.all(user?.groups.map(async (id) => {
+		return(await storage.getGroup(id));
+	}));
 
 	return(groups.filter((val) => Object.keys(val).length !== 0));
 }
 
-const getGroup = (id) => {
-	let group = storage.getTable("groups").find(group => group.id == id);
-	if (!group) return({});
-
-	return (group);
+const isSuperAdmin = async (userID) => {
+	return((await storage.getUser(userID)).roles.includes("SUPERADMIN"));
 }
 
-const getUser = (id) => {
-	let user = storage.getTable("users").find(user => user.id == id);
-	if (!user) return({"username": ""});
+const getHighestForGroup = async (userID, groupID) => {
+	if (await isSuperAdmin(userID)) return(2);
 
-	return(user);
-}
-
-const getHighestForGroup = (userID, groupID) => {
-	if (isSuperAdmin(userID)) return(2);
-
-	let user = getUser(userID);
+	let user = await storage.getUser(userID);
 	if (user.roles.length === 0) return(0);
 
 	if (user.roles.find((role) => role.startsWith(`${groupID}::`))) return(1);
@@ -36,9 +33,6 @@ const getHighestForGroup = (userID, groupID) => {
 	return(0);
 }
 
-const isSuperAdmin = (userID) => {
-	return(getUser(userID).roles.includes("SUPERADMIN"));
-}
 
 router
 .get('/', (req, res) => {
@@ -46,32 +40,31 @@ router
 })
 
 // Get a list of groups the user belongs to.
-.get('/groups/:userID', (req, res) => {
+.get('/groups/:userID', async (req, res) => {
 	let id = req.params.userID;
 	res.json({
 		"status": "OK",
-		"groups": fetchGroups(id)
+		"groups": await fetchGroups(id)
 	});
 	return;
 })
 
 // Get information on a given group.
-.get('/group/:groupID', (req, res) => {
+.get('/group/:groupID', async (req, res) => {
 	let groupID = req.params.groupID;
 	res.json({
 		"status": "OK",
-		"group": getGroup(groupID)
+		"group": await storage.getGroup(groupID)
 	});
 	return;
 })
 
 // Remove user from group.
-.post('/group/remove', (req, res) => {
+.post('/group/remove', async (req, res) => {
 	let data = req.body;
-	let executor = getUser(data.executor);
 
-	if (getHighestForGroup(data.executor, data.group) >= 1 || data.user === data.executor) {
-		if (getHighestForGroup(data.user, data.group) === 2) {
+	if (await getHighestForGroup(data.executor, data.group) >= 1 || data.user === data.executor) {
+		if (await getHighestForGroup(data.user, data.group) === 2) {
 			res.json({
 				"status": "ERROR",
 				"message": "Cannot remove superuser from group."
@@ -79,7 +72,7 @@ router
 			return;
 		}
 
-		storage.removeGroupFromUser(data.user, data.group);
+		await storage.removeGroupFromUser(data.user, data.group);
 		res.json({
 			"status": "OK",
 			"message": ""
@@ -95,9 +88,9 @@ router
 })
 
 // Rename group.
-.post('/group/rename', (req, res) => {
+.post('/group/rename', async (req, res) => {
 	let data = req.body;
-	if (getHighestForGroup(data.executor, data.group) >= 1) {
+	if (await getHighestForGroup(data.executor, data.group) >= 1) {
 		if (data.newName === "") {
 			res.json({
 				"status": "ERROR",
@@ -106,7 +99,7 @@ router
 			return;
 		}
 
-		storage.renameGroup(data.group, data.newName);
+		await storage.renameGroup(data.group, data.newName);
 		res.json({
 			"status": "OK",
 			"message": ""
@@ -123,14 +116,14 @@ router
 
 // Approve/reject request to join.
 // Needs: user, group, state(approve/reject), executor
-.post('/group/modifyRequest', (req, res) => {
+.post('/group/modifyRequest', async (req, res) => {
 	let data = req.body;
-	if (getHighestForGroup(data.executor, data.group) >= 1) {
+	if (await getHighestForGroup(data.executor, data.group) >= 1) {
 		if (data.state === true) {
-			storage.removeRequest(data.user, data.group);
-			storage.addUserToGroup(data.user, data.group);
+			await storage.removeRequest(data.user, data.group);
+			await storage.addUserToGroup(data.user, data.group);
 		} else {
-			storage.removeRequest(data.user, data.group);
+			await storage.removeRequest(data.user, data.group);
 		}
 
 		res.json({
@@ -149,11 +142,11 @@ router
 
 // Create a new channel for the given group.
 // Takes: group, name, executor
-.post('/group/channels/create', (req, res) => {
+.post('/group/channels/create', async (req, res) => {
 	let data = req.body;
-	if (getHighestForGroup(data.executor, data.group) >= 1) {
+	if (await getHighestForGroup(data.executor, data.group) >= 1) {
 		if (data.name) {
-			storage.createChannel(data.group, data.name);
+			await storage.createChannel(data.group, data.name);
 			res.json({
 				"status": "OK",
 				"message": ""
@@ -178,11 +171,11 @@ router
 
 // Delete a channel.
 // Takes: group, channel, executor
-.post('/group/channels/remove', (req, res) => {
+.post('/group/channels/remove', async (req, res) => {
 	let data = req.body;
-	if (getHighestForGroup(data.executor, data.group) >= 1) {
+	if (await getHighestForGroup(data.executor, data.group) >= 1) {
 		if (data.group && data.channel) {
-			storage.deleteChannel(data.group, data.channel);
+			await storage.deleteChannel(data.group, data.channel);
 			res.json({
 				"status": "OK",
 				"message": ""
@@ -206,11 +199,11 @@ router
 
 // delete a group.
 // takes group, executor
-.post('/group/delete', (req, res) => {
+.post('/group/delete', async (req, res) => {
 	let data = req.body;
-	if (getHighestForGroup(data.executor, data.group) >= 1) {
-		let groupObj = getGroup(data.group);
-		storage.deleteGroup(data.group);
+	if (await getHighestForGroup(data.executor, data.group) >= 1) {
+		let groupObj = await storage.getGroup(data.group);
+		await storage.deleteGroup(data.group);
 		res.json({
 			"status": "OK",
 			"message": ""
@@ -227,14 +220,14 @@ router
 
 // Create a group.
 // takes name, executor
-.post('/group/create', (req, res) => {
+.post('/group/create', async(req, res) => {
 	let data = req.body;
-	if (getUser(data.executor).roles.filter((role) => role.includes("ADMIN"))) {
-		storage.createGroup(data.name, data.executor);
+	if ((await storage.getUser(data.executor)).roles.filter((role) => role.includes("ADMIN"))) {
+		await storage.createGroup(data.name, data.executor);
 		res.json({
 			"status": "OK",
 			"message": "",
-			"roles": getUser(data.executor).roles
+			"roles": await storage.getUser(data.executor).roles
 		});
 		return;
 	}
@@ -248,10 +241,10 @@ router
 
 // Request to join a group.
 // takes code, executor
-.post('/group/request', (req, res) => {
+.post('/group/request', async (req, res) => {
 	let data = req.body;
 	try {
-		storage.addRequest(data.executor, parseInt(data.code, 36));
+		await storage.addRequest(data.executor, parseInt(data.code, 36));
 		res.json({
 			"status": "OK",
 			"message": ""
@@ -280,31 +273,31 @@ router
 })
 
 // Get username of user by ID.
-.get('/users/username/:userID', (req, res) => {
+.get('/users/username/:userID', async (req, res) => {
 	let userID = req.params.userID;
 	res.json({
 		"status": "OK",
-		"username": getUser(userID).username || ""
+		"username": (await storage.getUser(userID)).username || "ERROR"
 	});
 	return;
 })
 
 // Get roles of user by ID.
-.get('/users/roles/:userID', (req, res) => {
+.get('/users/roles/:userID', async (req, res) => {
 	let userID = req.params.userID;
 	res.json({
 		"status": "OK",
-		"roles": getUser(userID).roles || []
+		"roles": await storage.getUser(userID).roles || []
 	});
 	return;
 })
 
 // Get user details.
-.get('/users/:userID', (req, res) => {
+.get('/users/:userID', async (req, res) => {
 	let userID = req.params.userID;
 	res.json({
 		"status": "OK",
-		"user": getUser(userID) || {}
+		"user": await storage.getUser(userID) || {}
 	});
 	return;
 })
@@ -314,11 +307,11 @@ router
 // Role = 0: User
 // Role = 1: Admin
 // Role = 2: Operator (Superadmin)
-.post('/group/user/promote', (req, res) => {
+.post('/group/user/promote', async (req, res) => {
 	let data = req.body;
-	let executorLevel = getHighestForGroup(data.executor, data.group);
+	let executorLevel = await getHighestForGroup(data.executor, data.group);
 	if (executorLevel >= 1 && executorLevel >= data.role) {
-		storage.setPermissions(data.user, data.group, data.role);
+		await storage.setPermissions(data.user, data.group, data.role);
 		res.json({
 			"status": "OK",
 			"message": ""
