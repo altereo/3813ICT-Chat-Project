@@ -396,5 +396,74 @@ module.exports = {
 			}
 		});
 		return;
+	},
+
+	storeMessage: async (groupID, channelID, message) => {
+		await messagesCollection.updateOne({ id: `${groupID}::${channelID}` }, {
+			$push: {
+				messages: message
+			}
+		});
+		return;
+	},
+
+	getMessages: async (before, groupID, channelID) => {
+		const getUser = async (userID) => {
+			try {
+				let user = await usersCollection.findOne({ id: +userID });
+				user = {
+					email: user.email,
+					username: user.username,
+					roles: user.roles,
+					groups: user.groups,
+					image: user.image,
+					id: user.id
+				};
+
+				return((user) ? user : {username: "ERROR"});
+			} catch (err) {
+				throw(err);
+			}
+		}
+
+		let messages;
+		if (before === "") {
+			messages = (await messagesCollection.findOne({ id: `${groupID}::${channelID}` }, {
+				projection: { messages: { $slice: -50 } }
+			})).messages;
+
+			messages = await Promise.all(messages.map(async (message) => {
+				return({
+					...message,
+					author: await getUser(message.author)
+				});
+			}));
+		} else {
+			messages = (await (await messagesCollection.aggregate([
+				{ $match: { id: `${groupID}::${channelID}` }},
+				{
+					$project: {
+						messages: {
+							$filter: {
+								input:"$messages",
+								as: "message",
+								cond: { $lt: ["$$message.date", new Date(before)] }
+							}
+						}
+					}
+				},
+				{ $project: { messages: { $slice: ["$messages", -50] } } }
+
+			])).toArray())[0].messages;
+
+			messages = await Promise.all(messages.map(async (message) => {
+				return({
+					...message,
+					author: await getUser(message.author)
+				});
+			}));
+		}
+		
+		return(messages);
 	}
 }

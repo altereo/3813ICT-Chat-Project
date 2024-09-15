@@ -12,14 +12,26 @@ module.exports = {
 
 			socket.on('message', async (message) => {
 				logger.log('evnt', `${message?.author || socket.id} MESG ${message.group}::${message.channel}`);
+				let messageAuthor = await storage.getUser(message.author);
+
+				await storage.storeMessage(message.group, message.channel, {
+					group: message.group,
+					channel: message.channel,
+					id: message.id,
+					text: message.text,
+					image: message.image,
+					author: message.author,
+					date: new Date(Date.now())
+				});
+
 				io.emit('message', {
 					group: message.group,
 					channel: message.channel,
 					id: message.id,
 					text: message.text,
 					image: message.image,
-					author: await storage.getUser(message.author) || null,
-					date: Date.now()
+					author: messageAuthor || null,
+					date: new Date(Date.now())
 				});
 			});
 

@@ -261,13 +261,31 @@ router
 	return;
 })
 
-// Get last 50 messages in a channel.
-// takes group, channel
-.get('/group/messages', (req, res) => {
-	let channelID = req.params.channelID;
+// Get messages in a channel.
+// takes group, channel, before
+.post('/group/messages', async (req, res) => {
+	let data = req.body;
+	if (data.group !== undefined && data.channel !== undefined && data.before !== undefined) {
+		try {
+			let messages = await storage.getMessages(data.before, data.group, data.channel);
+			res.json({
+				"status": "OK",
+				"messages": messages || []
+			});
+			return;
+		} catch (err) {
+			res.json({
+				"status": "ERROR",
+				"message": err.toString()
+			});
+			return;
+		}
+		return;
+	}
+
 	res.json({
-		"status": "NOT_IMPLEMENTED",
-		"messages": []
+		"status": "ERROR",
+		"messages": "Missing parameters."
 	});
 	return;
 })

@@ -45,7 +45,7 @@ export type Message = {
   text: string;
   author: User | null;
   image: string | null;
-  date: number
+  date: string
 }
 
 @Injectable({
@@ -61,7 +61,7 @@ export class ChatApiService {
     text: "",
     author: null,
     image: null,
-    date: 0
+    date: ""
   });
 
   private readonly user$: BehaviorSubject<User> = new BehaviorSubject<User>({
@@ -242,11 +242,6 @@ export class ChatApiService {
     return(this.httpClient.get(`${BACKEND_URL}/api/chat/group/${groupID}`, httpOptions));
   }
 
-  // Get messages in channel.
-  getMessages(channelID: number) {
-    return(this.httpClient.get(`${BACKEND_URL}/api/chat/messages/${channelID}`, httpOptions));
-  }
-
 
   // Get username of user by id.
   getUsername(id: number) {
@@ -395,6 +390,17 @@ export class ChatApiService {
   // Fetch data of a user by ID.
   fetchUserData(id: number) {
     return(this.httpClient.get(`${BACKEND_URL}/api/chat/users/${id}`));
+  }
+
+  // Fetch messages paged.
+  fetchMessages(before: string, group: number, channel: number) {
+    let body = {
+      group: group,
+      channel: channel,
+      before: before
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/messages`, body, httpOptions));
   }
 
   // Getters for any multicast observables we have.

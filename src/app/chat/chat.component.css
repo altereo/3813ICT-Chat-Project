@@ -78,6 +78,7 @@
 	padding-top: 8px;
 	display: flex;
 	flex-direction: row;
+	margin-bottom: 10px;
 }
 
 .message-singleton {
@@ -126,6 +127,7 @@
 	justify-content: flex-end;
 	align-items: stretch;
 	min-height: 100%;
+	padding-bottom: 16px;
 }
 
 .message-bar-inner {

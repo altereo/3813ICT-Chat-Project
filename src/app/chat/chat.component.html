@@ -10,7 +10,7 @@
 			{{chatTitle}}
 		</h5>
 	</div>
-	<div class="chat-view container-fluid">
+	<div #autoScroll class="chat-view container-fluid" (scroll)="onScroll()">
 		<div class="scroller">
 			<div class="scroller-content">
 				<div class="message" *ngFor="let messageGroup of messages">

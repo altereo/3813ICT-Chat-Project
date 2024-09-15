@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, TemplateRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, Input, TemplateRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -14,8 +14,9 @@ import { ChatApiService, User, Group, Channel, Message } from '../chat-api.servi
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, AfterViewChecked {
   @ViewChild('messageInput', {static: false}) private messageInputElement!: ElementRef<HTMLInputElement>;
+  @ViewChild('autoScroll', {static: false}) private chatScrollElement!: ElementRef<HTMLElement>;
   private serverID = "";
   private channelID = "";
   chatTitle = "";
@@ -31,8 +32,11 @@ export class ChatComponent implements OnInit {
   modalRef: NgbModalRef | null = null;
   imageURL = "";
 
-  // Get human friendly date from Date.now().
-  getDate(date: number) {
+  // Chat log scrolling.
+  canScrollToBottom: boolean = true;
+
+  // Get human friendly date from Date.
+  getDate(date: string) {
     return(new Date(date).toLocaleString('en-GB'));
   }
 
@@ -104,6 +108,91 @@ export class ChatComponent implements OnInit {
     return;
   }
 
+  appendMessage(data: Message) {
+    if (`${data.group}` === this.serverID && `${data.channel}` === this.channelID) {
+      if (this.messages.length === 0) {
+        this.messages.push([data]);
+        return;
+      }
+
+      let lastGroup = this.messages[this.messages.length - 1];
+      let cDate = new Date(data.date).getTime();
+      let pDate = new Date(lastGroup[lastGroup.length - 1].date).getTime();
+
+      if (
+        cDate - pDate <= 90000 && data.author &&
+        data.author?.id === lastGroup[lastGroup.length - 1].author?.id &&
+        data.author?.image === lastGroup[lastGroup.length - 1].author?.image
+      ) {
+        this.messages[this.messages.length - 1].push(data);
+      } else {
+        this.messages.push([data]);
+      }
+
+      this.scrollToBottom();
+    }
+    return;
+  }
+
+  fetchNextPage() {
+    if (this.messages.length > 0 && this.messages[0].length > 0) {
+      this.chatApiService.fetchMessages(this.messages[0][0].date, +this.serverID, +this.channelID).subscribe((data: any) => {
+        if (data.status === "OK") {
+          let newMessageData: Message[][] = [];
+          data.messages.forEach((mData: Message) => {
+            if (newMessageData.length === 0) {
+              newMessageData.push([mData]);
+            } else {
+              let lastGroup = newMessageData[newMessageData.length - 1];
+              let cDate = new Date(mData.date).getTime();
+              let pDate = new Date(lastGroup[lastGroup.length - 1].date).getTime();
+
+              if (
+                cDate - pDate <= 90000 && mData.author &&
+                mData.author?.id === lastGroup[lastGroup.length - 1].author?.id &&
+                mData.author?.image === lastGroup[lastGroup.length - 1].author?.image
+              ) {
+                newMessageData[newMessageData.length - 1].push(mData);
+              } else {
+                newMessageData.push([mData]);
+              }
+            }
+          });
+
+          let container = this.chatScrollElement.nativeElement
+          let oldHeight = container.scrollHeight;
+          this.messages = [...newMessageData, ...this.messages];
+
+          setTimeout(() => {
+            container.scrollTop = container.scrollHeight - oldHeight;
+          }, 0)
+        }
+      })
+    }
+    return;
+  }
+
+  onScroll() {
+    let { scrollTop, scrollHeight, clientHeight } = this.chatScrollElement.nativeElement;
+    this.canScrollToBottom = scrollTop + clientHeight >= scrollHeight;
+    
+    if (scrollTop === 0) {
+      this.fetchNextPage();
+    }
+    return;
+  }
+
+  scrollToBottom() {
+    if (this.canScrollToBottom) {
+      this.chatScrollElement.nativeElement.scrollTop = this.chatScrollElement.nativeElement.scrollHeight;
+    }
+    return;
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       let path: string[] = params.get('path' as string)?.split("::") || [];
@@ -113,7 +202,15 @@ export class ChatComponent implements OnInit {
 
         this.chatTitle = this.chatApiService.getChatTitle(+this.serverID, +this.channelID);
         this.messages = [];
+        this.chatApiService.fetchMessages("", +this.serverID, +this.channelID).subscribe((data: any) => {
+          if (data.status === "OK") {
+            data.messages.forEach((message: Message) => this.appendMessage(message));
+          } else {
+            this.messages = [];
+          }
+        })
         
+
         if (this.chatTitle === "") {
           this.router.navigateByUrl("/home");
         }
@@ -121,24 +218,7 @@ export class ChatComponent implements OnInit {
     });
 
     this.chatApiService.onMessage().subscribe((data: Message) => {
-      if (`${data.group}` === this.serverID && `${data.channel}` === this.channelID) {
-        if (this.messages.length === 0) {
-          this.messages.push([data]);
-          return;
-        }
-
-        let lastGroup = this.messages[this.messages.length - 1];
-        if (
-          data.date - lastGroup[lastGroup.length - 1].date <= 90000 && data.author &&
-          data.author?.id === lastGroup[lastGroup.length - 1].author?.id &&
-          data.author?.image === lastGroup[lastGroup.length - 1].author?.image
-        ) {
-          this.messages[this.messages.length - 1].push(data);
-        } else {
-          this.messages.push([data]);
-        }
-        return;
-      }
+      this.appendMessage(data);
     });
   }
 
