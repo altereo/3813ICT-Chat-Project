@@ -24,7 +24,7 @@ module.exports = {
 			});
 
 			socket.on('group_change', () => {
-				logger.log('evnt', `${socket.id} Group changed.`);
+				logger.log('evnt', `[ ${socket.id} ] notifying of group change.`);
 				io.emit('group_change', generateID(10));
 			});
 

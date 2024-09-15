@@ -88,13 +88,6 @@ var groups = [
 
 var messages = {};
 
-
-const tableSet = {
-	users,
-	groups,
-	messages
-};
-
 var groupsCollection;
 var usersCollection;
 var messagesCollection;
@@ -133,10 +126,6 @@ module.exports = {
 		groupsCollection = db.collection('groups');
 		usersCollection = db.collection('users');
 		messagesCollection = db.collection('messages');
-	},
-
-	getTable: (type) => {
-		return(tableSet[type]);
 	},
 
 	generateID: (length) => {
@@ -328,8 +317,7 @@ module.exports = {
 
 	deleteGroup: async (groupID) => {
 		let group = await groupsCollection.findOne({ id: +groupID });
-		console.debug(group);
-		await Promise.all(group.users.forEach(async (userID) => {
+		await Promise.all(group.users.map(async (userID) => {
 			await usersCollection.updateOne({ id: +userID }, {
 				$pull: {
 					groups: groupID,

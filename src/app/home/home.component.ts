@@ -88,6 +88,12 @@ export class HomeComponent implements OnInit {
   updateCachedGroup() {
     let groupsList = this.chatApiService.getGroupsValue();
     this.targetGroup = groupsList.find((group: Group) => group.id === this.targetID);
+
+    if (!this.user?.groups.includes(this.targetID)) {
+      if (this.offCanvasRef) {
+        this.offCanvasRef.close();
+      }
+    }
     this.changeDetectionTicket = this.chatApiService.generateID(8);
     this.groupName = this.targetGroup?.name || "";
 

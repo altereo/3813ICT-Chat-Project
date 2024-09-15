@@ -28,10 +28,9 @@ const CDN_DIR = "./www";
 
 async function init() {
 	console.log("3813ICT Chat Server");
-	
+
 	// Connect to MongoDB and initialise storage interface.
 	const client = new MongoClient(DB_URL);
-
 	await storage.init(client, DB_NAME);
 
 
