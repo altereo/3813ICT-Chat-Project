@@ -94,6 +94,7 @@ export class HomeComponent implements OnInit {
         this.offCanvasRef.close();
       }
     }
+    
     this.changeDetectionTicket = this.chatApiService.generateID(8);
     this.groupName = this.targetGroup?.name || "";
 
@@ -215,7 +216,7 @@ export class HomeComponent implements OnInit {
           this.newGroupName = "";
           this.modalRef.close();
         }
-        this.chatApiService.updateRoles(data.roles);
+        this.chatApiService.updateUser();
         this.chatApiService.getGroups(this.userID);
         this.router.navigateByUrl("/home");
       }

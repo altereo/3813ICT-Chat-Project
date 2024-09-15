@@ -226,8 +226,7 @@ router
 		await storage.createGroup(data.name, data.executor);
 		res.json({
 			"status": "OK",
-			"message": "",
-			"roles": await storage.getUser(data.executor).roles
+			"message": ""
 		});
 		return;
 	}

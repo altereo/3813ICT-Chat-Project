@@ -10,84 +10,6 @@ const logger = require('../logger.js');
 	- Channel IDs are 8 digits.
 */
 
-var users = [
-	{
-		"email": "admin@gmail.com",
-		"username": "Superadmin",
-		"password": "123",
-		"roles": ["SUPERADMIN"],
-		"groups": [324123246245, 124532467324],
-		"image": "",
-		"id": 914976000
-	},
-	{
-		"email": "evan.lee@gmail.com",
-		"username": "Altereo",
-		"password": "123",
-		"roles": ["SUPERADMIN"],
-		"groups": [324123246245, 124532467324],
-		"image": "",
-		"id": 535134682
-	},
-	{
-		"email": "alice.margatroid@gmail.com",
-		"username": "rainbowPuppeteer",
-		"password": "123",
-		"roles": ["324123246245::ADMIN"],
-		"groups": [324123246245, 124532467324],
-		"image": "",
-		"id": 663242268
-	},
-	{
-		"email": "tim.price@gmail.com",
-		"username": "timmy_.",
-		"password": "123",
-		"roles": [],
-		"groups": [124532467324],
-		"image": "",
-		"id": 127845683
-	}
-];
-
-var groups = [
-	{
-		"id": 324123246245,
-		"name": "Test Server",
-		"channels": [
-			{
-				"id": 19384920,
-				"name": "general-1"
-			},
-			{
-				"id": 24242593,
-				"name": "general-2"
-			}
-		],
-		"users": [914976000, 535134682, 663242268],
-		"joinRequests": [127845683],
-		"creator": 663242268
-	},
-	{
-		"id": 124532467324,
-		"name": "Test Server 2",
-		"channels": [
-			{
-				"id": 19384920,
-				"name": "general-1"
-			},
-			{
-				"id": 38299480,
-				"name": "homework-help"
-			}
-		],
-		"users": [914976000, 535134682, 127845683, 663242268],
-		"joinRequests": [],
-		"creator": 535134682
-	}
-]
-
-var messages = {};
-
 var groupsCollection;
 var usersCollection;
 var messagesCollection;
@@ -290,14 +212,20 @@ module.exports = {
 	},
 
 	createChannel: async (groupID, channelName) => {
+		let channelID = generateID(8);
 		await groupsCollection.updateOne({ id: +groupID }, {
 			$addToSet: {
 				channels: {
-					"id": generateID(8),
+					"id": channelID,
 					"name": channelName
 				}
 			}
 		})
+
+		await messagesCollection.insertOne({
+			id: `${groupID}::${channelID}`,
+			messages: []
+		});
 		return;
 	},
 
@@ -312,6 +240,8 @@ module.exports = {
 				) 
 			}
 		});
+		
+		await messagesCollection.deleteOne({ id: `${groupID}::${channelID}` });
 		return;
 	},
 
@@ -325,18 +255,25 @@ module.exports = {
 				}
 			})
 		}));
+
+		await Promise.all(group.channels.map(async (channel) => {
+			await messagesCollection.deleteOne({ id: `${groupID}::${channel.id}` });
+		}));
+
 		await groupsCollection.deleteOne({ id: +groupID });
 		return;
 	},
 
 	createGroup: async (name, user) => {
 		let groupID = generateID(12);
+		let channelID = generateID(8);
+
 		await groupsCollection.insertOne({
 			"id": groupID,
 			"name": name,
 			"channels": [
 				{
-					"id": generateID(8),
+					"id": channelID,
 					"name": "general"
 				}
 			],
@@ -352,6 +289,10 @@ module.exports = {
 			}
 		});
 
+		await messagesCollection.insertOne({
+			id: `${groupID}::${channelID}`,
+			messages: []
+		});
 		return;
 	},
 
