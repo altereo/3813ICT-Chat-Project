@@ -7,7 +7,7 @@ html, body {
 	min-height: 100vh;
 	height: 100vh;
 	margin: 0;
-	overflow-y: hidden;
+	overflow: hidden;
 }
 
 app-chat {

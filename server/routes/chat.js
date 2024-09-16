@@ -340,6 +340,25 @@ router
 		"message": "Insufficient privelages."
 	});
 	return;
-});
+})
+
+// Keep track of where a particular user is (what channel they are viewing)
+// requires: user, group, channel
+.post('/group/user/notify', async (req, res) => {
+	let data = req.body;
+	if (data.user && data.group && data.channel) {
+		res.json({
+			"status": "OK",
+			"viewers": await storage.updateViewer(data.user, +data.group, +data.channel)
+		});
+		return;
+	}
+
+	res.json({
+		"status": "ERROR",
+		"message": "Missing parameter."
+	});
+	return;
+})
 
 module.exports = router;

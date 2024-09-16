@@ -3,11 +3,15 @@
 	padding: 16px;
 	display: inline-flex;
 	padding-top: 17.5px;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .chat-header > * {
 	font-weight: bold;
 	flex: 0 0 auto;
+	margin-bottom: 0;
+	padding: 3.4px;
 }
 
 .message-bar {
@@ -186,4 +190,62 @@
 ::ng-deep div.image-viewer-modal > * {
 	background: none;
 	border: none;
+}
+
+.viewer-list-button > i, .call-button > i {
+	font-size: 18px;
+	line-height: 0;
+	color: var(--bs-body-color);
+}
+
+.viewer-list-button:hover > i, .call-button:hover > i {
+	color: white;
+}
+
+.viewer-list-button:active > i, .call-button:active > i {
+	color: #dedcdc;
+}
+
+.call-button > i {
+	font-size: 16px;
+}
+
+.header-buttons {
+	padding: 0;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.header-buttons .btn {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.user-display {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	flex-direction: row;
+	margin-bottom: 8px;
+	padding-bottom: 8px;
+}
+
+.user-viewer-list {
+	width: 256px;
+	overflow: hidden;
+}
+
+.profile-image.small {
+	width: 28px;
+	height: 28px;
+}
+
+.user-name {
+	margin-left: 8px;
+}
+
+::ng-deep .channel-viewer-view > .popover-body {
+	padding-bottom: 4px;
 }

@@ -4,11 +4,31 @@
 	</div>
 </ng-template>
 
+<ng-template #channelUserList>
+	<div class="user-viewer-list">
+		<div class="user-display" *ngFor="let viewer of viewers">
+			<img src="{{'http://localhost:3000/avatar/' + (viewer?.image || 'default.webp')}}" class="profile-image small">
+			<span class="user-name" title="{{viewer.username}}">
+				{{(viewer.username || "") | truncate : 26}}
+			</span>
+		</div>
+	</div>
+</ng-template>
+
 <div class="d-flex flex-column chat-subwindow">
 	<div class="container chat-header">
 		<h5>
 			{{chatTitle}}
 		</h5>
+
+		<div class="header-buttons">
+			<div class="btn btn-link viewer-list-button" [ngbPopover]="channelUserList" popoverTitle="Current Users" container="body" placement="bottom-right" popoverClass="channel-viewer-view">
+				<i class="bi bi-people"></i>
+			</div>
+			<div class="btn btn-link call-button">
+				<i class="bi bi-telephone"></i>
+			</div>
+		</div>
 	</div>
 	<div #autoScroll class="chat-view container-fluid" (scroll)="onScroll()">
 		<div class="scroller">

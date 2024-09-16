@@ -45,7 +45,12 @@ export type Message = {
   text: string;
   author: User | null;
   image: string | null;
-  date: string
+  date: string;
+}
+
+export type ChannelUpdate = {
+  ticket: number;
+  ids: number[];
 }
 
 @Injectable({
@@ -76,6 +81,7 @@ export class ChatApiService {
 
   private readonly groups$: BehaviorSubject<Group[]> = new BehaviorSubject<Group[]>([]);
   private readonly groupUpdate$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  private readonly channelUpdate$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
   // Initialise the socket connection.
   initSocket() {
@@ -111,6 +117,12 @@ export class ChatApiService {
       this.groupUpdate$.next(id || 0);
       return;
     });
+
+    this.socket?.on('channel_update', (data: number) => {
+      this.channelUpdate$.next(data);
+      return;
+    });
+
     return;
   }
 
@@ -129,8 +141,18 @@ export class ChatApiService {
     return(this.groupUpdate$.asObservable());
   }
 
+  // On channel change event.
+  onChannelChanged(): Observable<number> {
+    return(this.channelUpdate$.asObservable());
+  }
+
   announceGroupChange(): void {
     this.socket?.emit('group_change');
+    return;
+  }
+
+  announceChannelChange(): void {
+    this.socket?.emit('channel_update');
     return;
   }
 
@@ -401,6 +423,16 @@ export class ChatApiService {
     };
 
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/messages`, body, httpOptions));
+  }
+
+  updateChannelViewers(user: number, group: number, channel: number) {
+    let body = {
+      user,
+      group,
+      channel
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/user/notify`, body, httpOptions));
   }
 
   // Getters for any multicast observables we have.

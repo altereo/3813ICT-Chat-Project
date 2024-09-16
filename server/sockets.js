@@ -1,5 +1,5 @@
 const logger = require('./logger.js');
-const storage = require('./datamodel/interface')
+const storage = require('./datamodel/interface');
 function generateID(length) {
 	if (length < 1) return(-1);
 	return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
@@ -39,6 +39,11 @@ module.exports = {
 				logger.log('evnt', `[ ${socket.id} ] notifying of group change.`);
 				io.emit('group_change', generateID(10));
 			});
+
+			socket.on('channel_update', (id) => {
+				logger.log('evnt', `[ ${socket.id} ] notifying of channel change.`);
+				io.emit('channel_update', generateID(8));
+			})
 
 			socket.on('disconnect', () => {
 				logger.log('sock', `[ ${socket.id} ] disconnected.`)

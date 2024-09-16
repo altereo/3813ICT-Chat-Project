@@ -4,15 +4,20 @@ const { MongoClient } = require('mongodb');
 
 const logger = require('./logger.js');
 const sockets = require('./sockets.js');
+const peerserver = require('./peerserver.js');
 const storage = require('./datamodel/interface.js');
 
 var app = express();
 
+// Setup CORS properly.
 var cors = require('cors');
 app.use(cors());
 
+// Allow request body data to be JSON/FormData
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Configure socket server.
 var http = require('http').Server(app);
 var io = new Server(http, {
 	cors: {
@@ -21,6 +26,7 @@ var io = new Server(http, {
 	}
 });
 
+// Constants for server and db access.
 const DB_URL = "mongodb://localhost:27017";
 const DB_NAME = "3813ICT-Chat";
 const PORT = 3000;
@@ -45,7 +51,11 @@ async function init() {
 		next();
 	});
 
+	// Initialise sockets
 	sockets.connect(io, PORT)
+
+	// Initialise peer server.
+	peerserver.init(app, http);
 
 	// Host image folders.
 	app.use('/avatar', express.static(`${CDN_DIR}/avatar`));

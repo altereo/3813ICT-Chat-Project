@@ -1,16 +1,17 @@
 import { Component, OnInit, AfterViewChecked, Input, TemplateRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule, RouterLink, RouterOutlet, Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { ChatApiService, User, Group, Channel, Message } from '../chat-api.service';
+import { TruncatePipe } from '../pipes/truncate.pipe';
+import { ChatApiService, User, Group, Channel, Message, ChannelUpdate } from '../chat-api.service';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgbPopoverModule, TruncatePipe],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
@@ -34,6 +35,9 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   // Chat log scrolling.
   canScrollToBottom: boolean = true;
+
+  // Keep track of what other users are viewing the channel
+  viewers: User[] = [];
 
   // Get human friendly date from Date.
   getDate(date: string) {
@@ -134,6 +138,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     return;
   }
 
+  // Implementation for pagination system.
   fetchNextPage() {
     if (this.messages.length > 0 && this.messages[0].length > 0) {
       this.chatApiService.fetchMessages(this.messages[0][0].date, +this.serverID, +this.channelID).subscribe((data: any) => {
@@ -210,6 +215,16 @@ export class ChatComponent implements OnInit, AfterViewChecked {
           }
         })
         
+        this.chatApiService.updateChannelViewers(
+          this.chatApiService.getUser()?.id || 0,
+          +this.serverID,
+          +this.channelID
+        ).subscribe((data: any) => {
+          if (data.status === "OK") {
+            this.viewers = data.viewers;
+            this.chatApiService.announceChannelChange();
+          }
+        });
 
         if (this.chatTitle === "") {
           this.router.navigateByUrl("/home");
@@ -220,6 +235,18 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     this.chatApiService.onMessage().subscribe((data: Message) => {
       this.appendMessage(data);
     });
+
+    this.chatApiService.onChannelChanged().subscribe((data: number) => {
+      this.chatApiService.updateChannelViewers(
+        this.chatApiService.getUser()?.id || 0,
+        +this.serverID,
+        +this.channelID
+      ).subscribe((data: any) => {
+        if (data.status === "OK") {
+          this.viewers = data.viewers;
+        }
+      });
+    })
   }
 
   constructor(

@@ -3,19 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, RouterLink, RouterOutlet, Router } from '@angular/router';
 import {
-  NgbAccordionModule,
+  NgbModal,
+  NgbModalRef,
   NgbOffcanvas,
-  OffcanvasDismissReasons,
   NgbOffcanvasRef,
   NgbDropdownModule,
-  NgbModal,
-  NgbModalRef
+  NgbAccordionModule,
+  OffcanvasDismissReasons
 } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import { GetUserPipe } from '../pipes/get-user.pipe';
 import { TruncatePipe } from '../pipes/truncate.pipe';
-import { GetRoleByIDPipe } from '../pipes/get-role-by-id.pipe';
 import { GetRoleNoAPIPipe } from '../pipes/get-role-no-api.pipe';
 import { GetServerByIDPipe } from '../pipes/get-server-by-id.pipe';
 import { GetUsernameByIDPipe } from '../pipes/get-username-by-id.pipe';
@@ -31,17 +30,16 @@ import { ChatApiService, User, Group, Channel } from '../chat-api.service';
   selector: 'app-home',
   standalone: true,
   imports: [
+    FormsModule,
+    GetUserPipe,
     CommonModule,
     RouterModule,
-    FormsModule,
-    NgbAccordionModule,
+    TruncatePipe,
+    GetRoleNoAPIPipe,
     NgbDropdownModule,
     GetServerByIDPipe,
-    GetUsernameByIDPipe,
-    TruncatePipe,
-    GetRoleByIDPipe,
-    GetRoleNoAPIPipe,
-    GetUserPipe
+    NgbAccordionModule,
+    GetUsernameByIDPipe
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'

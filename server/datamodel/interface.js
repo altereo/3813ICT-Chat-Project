@@ -14,10 +14,30 @@ var groupsCollection;
 var usersCollection;
 var messagesCollection;
 
+const viewers = {};
+
 const generateID = (length) => {
 	if (length < 1) return(-1);
 	return(Math.floor((10 ** length) + Math.random() * (10 ** (length - 1) * 9)));
 };
+
+const getUser = async (userID) => {
+	try {
+		let user = await usersCollection.findOne({ id: +userID });
+		user = {
+			email: user.email,
+			username: user.username,
+			roles: user.roles,
+			groups: user.groups,
+			image: user.image,
+			id: user.id
+		};
+
+		return((user) ? user : {username: "ERROR"});
+	} catch (err) {
+		throw(err);
+	}
+}
 
 module.exports = {
 	init: async (client, DB_NAME) => {
@@ -349,24 +369,6 @@ module.exports = {
 	},
 
 	getMessages: async (before, groupID, channelID) => {
-		const getUser = async (userID) => {
-			try {
-				let user = await usersCollection.findOne({ id: +userID });
-				user = {
-					email: user.email,
-					username: user.username,
-					roles: user.roles,
-					groups: user.groups,
-					image: user.image,
-					id: user.id
-				};
-
-				return((user) ? user : {username: "ERROR"});
-			} catch (err) {
-				throw(err);
-			}
-		}
-
 		let messages;
 		if (before === "") {
 			messages = (await messagesCollection.findOne({ id: `${groupID}::${channelID}` }, {
@@ -406,5 +408,18 @@ module.exports = {
 		}
 		
 		return(messages);
+	},
+
+	async updateViewer(user, group, channel) {
+		viewers[`${user}`] = {
+			group,
+			channel
+		};
+
+		let newViewerList = Object.keys(viewers).filter((user) => {
+			return(viewers[user].group === group && viewers[user].channel === channel);
+		});
+
+		return((await Promise.all(newViewerList.map(async (id) => await getUser(+id)))) || []);
 	}
 }
