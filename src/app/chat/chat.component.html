@@ -19,6 +19,7 @@
 	<div class="container chat-header">
 		<h5>
 			{{chatTitle}}
+			<i class="bi bi-record2 call-indicator" title="Call in progress" *ngIf="isCallRunning"></i>
 		</h5>
 
 		<div class="header-buttons">

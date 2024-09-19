@@ -40,6 +40,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   // Keep track of what other users are viewing the channel
   viewers: User[] = [];
+  isCallRunning: boolean = false;
 
   // Get human friendly date from Date.
   getDate(date: string) {
@@ -235,6 +236,14 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
           }
         });
 
+        this.chatApiService.getPeers(+this.serverID, +this.channelID).subscribe((data: any) => {
+          if (data.status === "OK") {
+            if (data.peers.length >= 1) {
+              this.isCallRunning = true;
+            }
+          }
+        });
+        
         if (this.chatTitle === "") {
           this.router.navigateByUrl("/home");
         }
@@ -257,6 +266,11 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
       });
     })
 
+    this.chatApiService.onCallChanged().pipe(takeUntil(this._destroy)).subscribe((data: any) => {
+      if (data.id === +this.channelID) {
+        this.isCallRunning = data.state;
+      }
+    })
   }
 
   ngOnDestroy() {

@@ -249,3 +249,7 @@
 ::ng-deep .channel-viewer-view > .popover-body {
 	padding-bottom: 4px;
 }
+
+.call-indicator {
+	color: red;
+}

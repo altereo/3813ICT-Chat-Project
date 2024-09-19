@@ -45,6 +45,11 @@ module.exports = {
 				io.emit('channel_update', generateID(8));
 			})
 
+			socket.on('call_change', (data) => {
+				logger.log('evnt', `[ ${socket.id} ] call started or stopped.`);
+				io.emit('call_change', data);
+			})
+
 			socket.on('disconnect', () => {
 				logger.log('sock', `[ ${socket.id} ] disconnected.`)
 			});

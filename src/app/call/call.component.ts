@@ -1,12 +1,12 @@
-import { Component, OnInit, Input, TemplateRef, ViewChild, ElementRef, QueryList, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, TemplateRef, ViewChild, ElementRef, QueryList, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Observable, BehaviorSubject, interval } from 'rxjs';
-import { RouterModule, RouterLink, RouterOutlet, Router, ActivatedRoute } from '@angular/router';
+import { Observable, BehaviorSubject, interval, Subscription } from 'rxjs';
+import { RouterModule, RouterLink, RouterOutlet, Router, ActivatedRoute, NavigationStart } from '@angular/router';
 
 import { GetUsernameByIDPipe } from '../pipes/get-username-by-id.pipe';
 import { ChatApiService, User, Group, Channel, Message, ChannelUpdate } from '../chat-api.service';
-import { RtcCallService, RTCStream } from '../rtc-call.service';
+import { RtcCallService, RTCStream, CameraState } from '../rtc-call.service';
 
 @Component({
   selector: 'app-call',
@@ -15,9 +15,10 @@ import { RtcCallService, RTCStream } from '../rtc-call.service';
   templateUrl: './call.component.html',
   styleUrl: './call.component.css'
 })
-export class CallComponent implements OnInit {
+export class CallComponent implements OnInit, OnDestroy {
   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('remoteVideo', {static: false}) remoteVideos!: QueryList<ElementRef>;
+  private routerSubscription: Subscription;
 
   private serverID: string = "";
   private channelID: string = "";
@@ -28,6 +29,10 @@ export class CallComponent implements OnInit {
   public participantCount: number = 0;
 
   public remoteStreams: BehaviorSubject<RTCStream[]> = new BehaviorSubject<RTCStream[]>([]);
+  public localCameraState: CameraState = {
+    video: true,
+    audio: true
+  };
 
   terminateCall() {
     if (this.serverID && this.channelID) {
@@ -55,10 +60,8 @@ export class CallComponent implements OnInit {
     return(`${hString}${mString}:${sString}`);
   }
 
-  toggleVideo() {
-    this.rtcCallService.toggleVideo();
-    return;
-  }
+  toggleVideo() { this.localCameraState = this.rtcCallService.toggleVideo() }
+  toggleAudio() { this.localCameraState = this.rtcCallService.toggleAudio() }
 
   ngOnInit() {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -87,6 +90,7 @@ export class CallComponent implements OnInit {
         let video = videoElement;
         if (this.remoteStreams.value[index]) {
           video.srcObject = this.remoteStreams.value[index].stream;
+          console.debug(this.remoteStreams.value[index].stream.getTracks());
         }
       })
     });
@@ -116,11 +120,23 @@ export class CallComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
   constructor (
     private router:Router,
     private route: ActivatedRoute,
     private chatApiService: ChatApiService,
     private rtcCallService: RtcCallService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.rtcCallService.close()
+      }
+    })
+  }
 }

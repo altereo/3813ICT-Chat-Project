@@ -82,6 +82,10 @@ export class ChatApiService {
   private readonly groups$: BehaviorSubject<Group[]> = new BehaviorSubject<Group[]>([]);
   private readonly groupUpdate$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   private readonly channelUpdate$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  private readonly callUpdate$: BehaviorSubject<any> = new BehaviorSubject<any>({
+    id: 0,
+    state: false
+  });
 
   // Initialise the socket connection.
   initSocket() {
@@ -123,6 +127,11 @@ export class ChatApiService {
       return;
     });
 
+    this.socket?.on('call_change', (data: any) => {
+      this.callUpdate$.next(data);
+      return;
+    });
+
     return;
   }
 
@@ -146,6 +155,11 @@ export class ChatApiService {
     return(this.channelUpdate$.asObservable());
   }
 
+  // On call changed event.
+  onCallChanged(): Observable<number> {
+    return(this.callUpdate$.asObservable());
+  }
+
   announceGroupChange(): void {
     this.socket?.emit('group_change');
     return;
@@ -154,6 +168,14 @@ export class ChatApiService {
   announceChannelChange(): void {
     this.socket?.emit('channel_update');
     return;
+  }
+
+  // Let other clients know a call's state has changed.
+  announceCall(channelID: number, state: boolean): void {
+    this.socket?.emit('call_change', {
+      id: channelID,
+      state
+    });
   }
 
   emitMessage(group: number, channel: number, author: number, text: string, image: string | null): void {

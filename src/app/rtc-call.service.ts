@@ -17,6 +17,11 @@ export type RTCStream = {
   stream: MediaStream;
 }
 
+export type CameraState = {
+  video: boolean;
+  audio: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,6 +39,11 @@ export class RtcCallService implements OnInit {
   private peerStreams$: BehaviorSubject<RTCStream[]> = new BehaviorSubject<RTCStream[]>([]);
 
   private pendingCalls: MediaConnection[] = [];
+
+  public cameraState: CameraState = {
+    video: true,
+    audio: true
+  };
 
   public initPeer(userID: number, groupID: number, channelID: number): void {
     this.userID = userID;
@@ -67,6 +77,9 @@ export class RtcCallService implements OnInit {
           this.chatApiService.associatePeer(id, userID, groupID, channelID).subscribe((data: any) => {
             if (data.status === "OK") {
               this.callUsers$.next(data.peers);
+              if (data.peers.length == 1) {
+                this.chatApiService.announceCall(+channelID, true);
+              }
               return;
             }
 
@@ -119,6 +132,10 @@ export class RtcCallService implements OnInit {
     if (this.peer) {
       this.isDestroyed = true;
       try {
+        if (this.peerStreams$.value.length === 0) {
+          this.chatApiService.announceCall(+this.channel, false);
+        }
+
         this.peer.disconnect();
         this.peer.destroy();
 
@@ -206,12 +223,22 @@ export class RtcCallService implements OnInit {
     return;
   }
 
-  public toggleVideo(): void {
+  public toggleVideo(): CameraState {
     if (this.localStream$.value instanceof MediaStream) {
       let tracks = this.localStream$.value?.getVideoTracks();
-      tracks.forEach(track => track.enabled = !track.enabled);
+      this.cameraState.video = !this.cameraState.video;
+      tracks.forEach(track => track.enabled = this.cameraState.video);
     }
-    return
+    return(this.cameraState)
+  }
+
+  public toggleAudio(): CameraState {
+    if (this.localStream$.value instanceof MediaStream) {
+      let tracks = this.localStream$.value?.getAudioTracks();
+      this.cameraState.audio = !this.cameraState.audio;
+      tracks.forEach(track => track.enabled = this.cameraState.audio);
+    }
+    return(this.cameraState);
   }
 
   get remoteStreams(): Observable<RTCStream[]> {

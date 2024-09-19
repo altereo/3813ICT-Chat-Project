@@ -1,14 +1,25 @@
 <div class="call-container d-flex flex-column">
 	<div class="call-header">
-		<h5>
-			{{chatTitle}}
-		</h5>
-
-		<div class="header-buttons">
+		<div class="header-left">
+			<h5>
+				{{chatTitle}}
+			</h5>
 			<span class="elapsed-time">
 				{{convertTimeToString(elapsedTime$ | async)}}
 			</span>
+		</div>
+
+		<div class="header-buttons">
+			<button type="button" class="btn btn-link video-control" (click)="toggleVideo()">
+				<i class="bi bi-camera-video" *ngIf="localCameraState.video"></i>
+				<i class="bi bi-camera-video-off" *ngIf="!localCameraState.video"></i>
+			</button>
+			<button type="button" class="btn btn-link video-control" (click)="toggleAudio()">
+				<i class="bi bi-mic" *ngIf="localCameraState.audio"></i>
+				<i class="bi bi-mic-mute" *ngIf="!localCameraState.audio"></i>
+			</button>
 			<button type="button" class="btn btn-danger terminate-call-button" (click)="terminateCall()">
+				<i class="bi bi-telephone-x-fill"></i>
 				Leave
 			</button>
 		</div>
@@ -25,6 +36,6 @@
 				</span>
 			</div>
 		</div>
-		<video #localVideo id="local-video" autoplay playsinline [muted]=true (click)="toggleVideo()"></video>
+		<video #localVideo id="local-video" autoplay playsinline [muted]=true></video>
 	</div>
 </div>
