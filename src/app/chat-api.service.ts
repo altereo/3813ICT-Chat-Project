@@ -425,6 +425,7 @@ export class ChatApiService {
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/messages`, body, httpOptions));
   }
 
+  // Update the viewers of a channel.
   updateChannelViewers(user: number, group: number, channel: number) {
     let body = {
       user,
@@ -433,6 +434,22 @@ export class ChatApiService {
     };
 
     return(this.httpClient.post(`${BACKEND_URL}/api/chat/group/user/notify`, body, httpOptions));
+  }
+
+  // Associate the peer ID with a user, group, and channel.
+  associatePeer(peer: string, user: number, group: number, channel: number) {
+    let body = {
+      user,
+      group,
+      channel,
+      peerID: peer
+    };
+
+    return(this.httpClient.post(`${BACKEND_URL}/peerserv/associate`, body, httpOptions));
+  }
+
+  getPeers(group: number, channel: number) {
+    return(this.httpClient.get(`${BACKEND_URL}/peerserv/peers/${group}/${channel}`, httpOptions));
   }
 
   // Getters for any multicast observables we have.

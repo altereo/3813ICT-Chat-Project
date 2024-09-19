@@ -25,7 +25,7 @@
 			<div class="btn btn-link viewer-list-button" [ngbPopover]="channelUserList" popoverTitle="Current Users" container="body" placement="bottom-right" popoverClass="channel-viewer-view">
 				<i class="bi bi-people"></i>
 			</div>
-			<div class="btn btn-link call-button">
+			<div class="btn btn-link call-button" (click)="navigateToCall()">
 				<i class="bi bi-telephone"></i>
 			</div>
 		</div>

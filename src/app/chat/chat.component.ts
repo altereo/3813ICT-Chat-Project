@@ -1,9 +1,10 @@
-import { Component, OnInit, AfterViewChecked, Input, TemplateRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, Input, TemplateRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule, RouterLink, RouterOutlet, Router, ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { TruncatePipe } from '../pipes/truncate.pipe';
 import { ChatApiService, User, Group, Channel, Message, ChannelUpdate } from '../chat-api.service';
@@ -15,9 +16,10 @@ import { ChatApiService, User, Group, Channel, Message, ChannelUpdate } from '..
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent implements OnInit, AfterViewChecked {
+export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('messageInput', {static: false}) private messageInputElement!: ElementRef<HTMLInputElement>;
   @ViewChild('autoScroll', {static: false}) private chatScrollElement!: ElementRef<HTMLElement>;
+  private _destroy: Subject<any> = new Subject();
   private serverID = "";
   private channelID = "";
   chatTitle = "";
@@ -109,6 +111,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         this.modalRef?.dismiss();
       }
     })
+    return;
+  }
+
+  navigateToCall() {
+    if (this.serverID && this.channelID) {
+      this.router.navigateByUrl(`/call/${this.serverID}::${this.channelID}`);
+    }
     return;
   }
 
@@ -236,7 +245,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
       this.appendMessage(data);
     });
 
-    this.chatApiService.onChannelChanged().subscribe((data: number) => {
+    this.chatApiService.onChannelChanged().pipe(takeUntil(this._destroy)).subscribe((data: any) => {
       this.chatApiService.updateChannelViewers(
         this.chatApiService.getUser()?.id || 0,
         +this.serverID,
@@ -247,6 +256,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         }
       });
     })
+
+  }
+
+  ngOnDestroy() {
+    this._destroy.next(true);
+    this._destroy.unsubscribe();
+    return;
   }
 
   constructor(

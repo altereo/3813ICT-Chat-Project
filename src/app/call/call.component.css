@@ -1,0 +1,96 @@
+.call-header {
+	border-bottom: 1px solid var(--subtlegray);
+	padding: 16px;
+	display: inline-flex;
+	padding-top: 17.5px;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.terminate-call-button {
+	padding-top: 4px;
+	padding-bottom: 4px;
+	margin-left: 16px;
+}
+
+.header-buttons {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.call-view {
+	box-sizing: border-box;
+	border: none;
+	height: 95%;
+	width: 100%;
+	overflow: hidden;
+	padding: 16px;
+	display: flex;
+}
+
+.no-user-overlay {
+	width: 100%;
+	height: 90%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+}
+
+.no-user-overlay > span {
+	margin-bottom: 64px;
+}
+
+.call-container {
+	height: 100%;
+}
+
+.call-header > h5 {
+	font-weight: bold;
+	flex: 0 0 auto;
+	margin-bottom: 0;
+	padding: 3.4px;
+}
+
+video#local-video {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	height: 156px;
+	border-radius: 8px;
+	margin-right: 16px;
+	margin-bottom: 16px;
+}
+
+.remote-callers {
+	display: flex;
+	width: 100vw;
+	overflow-y: hidden;
+	overflow-x: scroll;
+}
+
+.caller-view {
+	position: relative;
+	height: 365px;
+	margin-right: 16px;
+}
+
+.caller-view > video {
+	border-radius: 8px;
+	height: 365px;
+}
+
+.username-display {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.8);
+	padding: 2px;
+	font-size: 14px;
+	padding-right: 4px;
+	padding-left: 4px;
+	border-radius: 4px;
+	margin-left: 8px;
+	margin-bottom: 8px;
+}

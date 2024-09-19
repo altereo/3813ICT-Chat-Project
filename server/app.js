@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 
 const logger = require('./logger.js');
 const sockets = require('./sockets.js');
-const peerserver = require('./peerserver.js');
+const rtcserver = require('./rtcserver.js');
 const storage = require('./datamodel/interface.js');
 
 var app = express();
@@ -55,7 +55,7 @@ async function init() {
 	sockets.connect(io, PORT)
 
 	// Initialise peer server.
-	peerserver.init(app, http);
+	rtcserver.init(app, http);
 
 	// Host image folders.
 	app.use('/avatar', express.static(`${CDN_DIR}/avatar`));

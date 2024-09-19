@@ -1,0 +1,30 @@
+<div class="call-container d-flex flex-column">
+	<div class="call-header">
+		<h5>
+			{{chatTitle}}
+		</h5>
+
+		<div class="header-buttons">
+			<span class="elapsed-time">
+				{{convertTimeToString(elapsedTime$ | async)}}
+			</span>
+			<button type="button" class="btn btn-danger terminate-call-button" (click)="terminateCall()">
+				Leave
+			</button>
+		</div>
+	</div>
+	<div class="call-view">
+		<div class="no-user-overlay" *ngIf="!participantCount">
+			<span>It looks like you're the only one here!</span>
+		</div>
+		<div class="remote-callers">
+			<div class="caller-view" *ngFor="let stream of (remoteStreams | async); let i = index">
+				<video #remoteVideo [attr.id]="'remote-video-' + i" class="remote-video" autoplay playsinline></video>
+				<span class="username-display">
+					{{stream.id | getUsernameByID | async}}
+				</span>
+			</div>
+		</div>
+		<video #localVideo id="local-video" autoplay playsinline [muted]=true (click)="toggleVideo()"></video>
+	</div>
+</div>
