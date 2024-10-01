@@ -313,7 +313,7 @@ module.exports = {
 			id: `${groupID}::${channelID}`,
 			messages: []
 		});
-		return;
+		return(groupID);
 	},
 
 	setPermissions: async (userID, groupID, level) => {

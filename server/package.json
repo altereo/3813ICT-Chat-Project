@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha ./tests/test.js",
     "start": "nodemon app.js"
   },
   "author": "S5293070, Evan On Yung Lee",
@@ -16,5 +16,10 @@
     "peer": "^1.0.2",
     "sharp": "^0.33.5",
     "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.7.3"
   }
 }

@@ -61,23 +61,35 @@ router
 
 // Remove user from group.
 .post('/group/remove', async (req, res) => {
-	let data = req.body;
+	try{
+		let data = req.body;
+		if (
+			data.executor === undefined ||
+			data.group === undefined ||
+			data.user === undefined
+		) { throw("Missing parameter") }
 
-	if (await getHighestForGroup(data.executor, data.group) >= 1 || data.user === data.executor) {
-		if (await getHighestForGroup(data.user, data.group) === 2) {
+		if (await getHighestForGroup(data.executor, data.group) >= 1 || data.user === data.executor) {
+			if (await getHighestForGroup(data.user, data.group) === 2) {
+				res.json({
+					"status": "ERROR",
+					"message": "Cannot remove superuser from group."
+				});
+				return;
+			}
+
+			await storage.removeGroupFromUser(data.user, data.group);
 			res.json({
-				"status": "ERROR",
-				"message": "Cannot remove superuser from group."
+				"status": "OK",
+				"message": ""
 			});
 			return;
 		}
-
-		await storage.removeGroupFromUser(data.user, data.group);
+	} catch (err) {
 		res.json({
-			"status": "OK",
-			"message": ""
+			"status": "ERROR",
+			"message": err
 		});
-		return;
 	}
 
 	res.json({
@@ -223,10 +235,10 @@ router
 .post('/group/create', async(req, res) => {
 	let data = req.body;
 	if ((await storage.getUser(data.executor)).roles.filter((role) => role.includes("ADMIN"))) {
-		await storage.createGroup(data.name, data.executor);
+		let newGroupID = await storage.createGroup(data.name, data.executor);
 		res.json({
 			"status": "OK",
-			"message": ""
+			"message": newGroupID
 		});
 		return;
 	}

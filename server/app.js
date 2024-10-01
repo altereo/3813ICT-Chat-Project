@@ -32,6 +32,10 @@ const DB_NAME = "3813ICT-Chat";
 const PORT = 3000;
 const CDN_DIR = "./www";
 
+let server;
+let initCallback;
+let isTestingMode = false;
+
 async function init() {
 	console.log("3813ICT Chat Server");
 
@@ -70,15 +74,34 @@ async function init() {
 
 	// Import the image routes.
 	app.use('/api/upload', imageRoutes);
+}
 
-
+init().then(() => {
 	// Start the server.
-	let server = http.listen(PORT, "127.0.0.1", () => {
+	server = http.listen(PORT, "127.0.0.1", () => {
 		let host = server.address().address;
 		let port = server.address().port;
 
 		logger.log("info", `Server began listening on: \x1b[36mhttp://${host}:${port}\x1b[97m`);
 	});
-}
 
-init();
+	if (initCallback) {
+		initCallback();
+	}
+});
+
+module.exports = {
+	init: (cb, isTest = false) => {
+		initCallback = cb;
+		isTestingMode = isTest;
+
+		if (isTestingMode) {
+			logger.disable(); // Disable the console logs during testing.
+		}
+	},
+	stop: (cb) => {
+		cb();
+		process.kill(process.pid, 'SIGINT');
+	},
+	app
+}
