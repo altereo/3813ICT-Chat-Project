@@ -1,4 +1,4 @@
-import { Injectable, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID, OnInit, isDevMode } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, Observer } from 'rxjs';
@@ -104,11 +104,6 @@ export class ChatApiService {
 
     this.socket?.on('disconnect', () => {
       console.debug("Disconnected from socket server.");
-      return;
-    });
-
-    this.socket?.on('connect_error', (err) => {
-      console.log("Failed to connect to socket server:", err);
       return;
     });
 
@@ -490,6 +485,7 @@ export class ChatApiService {
 
   constructor(@Inject(PLATFORM_ID) private platformId:Object, private httpClient: HttpClient) {
     this.isBrowser = isPlatformBrowser(platformId);
+
     this.initSocket();
   }
 }

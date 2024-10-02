@@ -1,4 +1,14 @@
-import { Component, OnInit, OnDestroy, Input, TemplateRef, ViewChild, ElementRef, QueryList, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Input,
+  TemplateRef,
+  ViewChild,
+  ElementRef,
+  QueryList,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable, BehaviorSubject, interval, Subscription } from 'rxjs';
@@ -46,8 +56,8 @@ export class CallComponent implements OnInit, OnDestroy {
     return;
   }
 
-  convertTimeToString(seconds: number | null) {
-    if (seconds === null) return;
+  convertTimeToString(seconds: number | null): string {
+    if (seconds === null) return("00:00");
 
     let hours = Math.floor(seconds / 3600);
     let minutes = Math.floor((seconds % 3600) / 60);
@@ -116,7 +126,10 @@ export class CallComponent implements OnInit, OnDestroy {
     );
 
     interval(1000).subscribe(() => {
-      this.elapsedTime$.next(Math.floor((Date.now() - this.callConnected) / 1000));
+      if (this.callConnected !== 0) {
+        this.elapsedTime$.next(Math.floor((Date.now() - this.callConnected) / 1000));
+      }
+      return;
     });
   }
 

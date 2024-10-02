@@ -156,6 +156,10 @@ export class AppComponent implements OnInit {
     return;
   }
 
+  public getEditDialogRef(): TemplateRef<any> {
+    return(this.editDialog);
+  }
+
   ngOnInit() {
     if (!this.chatApiService.isLoggedIn()) {
       this.router.navigateByUrl("/login");
