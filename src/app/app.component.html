@@ -1,7 +1,7 @@
 <ng-template #accountDialog>
 	<div class="account-details-container">
 		<div class="avatar-display">
-			<img class="account-image" src="{{'http://localhost:3000/avatar/' + ((user | async)?.image || 'default.webp')}}">
+			<img class="account-image" src="{{'http://127.0.0.1:3000/avatar/' + ((user | async)?.image || 'default.webp')}}">
 			<label for="account-image-input">
 				<div class="image-upload-button">
 					<input class="file-input hidden" type="file" [(ngModel)]="fileInput" id="account-image-input" accept="image/*" (change)="onFileChange($event)" />
@@ -35,7 +35,7 @@
 <span class="header">
 	<p class="heading-text">3813ICT Chat Application</p>
 	<button type="button" [ngbPopover]="accountDialog" [popoverTitle]="'Manage Account'" [autoClose]="'outside'" class="btn btn-outline-secondary account-button" *ngIf="(user | async)?.valid">
-		<img class="account-image-icon" src="{{'http://localhost:3000/avatar/' + ((user | async)?.image || 'default.webp')}}">
+		<img class="account-image-icon" src="{{'http://127.0.0.1:3000/avatar/' + ((user | async)?.image || 'default.webp')}}">
 		<span class="button-text">
 			{{(user | async)?.username}}
 		</span>

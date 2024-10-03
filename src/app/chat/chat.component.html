@@ -7,7 +7,7 @@
 <ng-template #channelUserList>
 	<div class="user-viewer-list">
 		<div class="user-display" *ngFor="let viewer of viewers">
-			<img src="{{'http://localhost:3000/avatar/' + (viewer?.image || 'default.webp')}}" class="profile-image small">
+			<img src="{{'http://127.0.0.1:3000/avatar/' + (viewer?.image || 'default.webp')}}" class="profile-image small">
 			<span class="user-name" title="{{viewer.username}}">
 				{{(viewer.username || "") | truncate : 26}}
 			</span>
@@ -36,7 +36,7 @@
 			<div class="scroller-content">
 				<div class="message" *ngFor="let messageGroup of messages">
 					<span class="profile-container">
-						<img src="{{'http://localhost:3000/avatar/' + (messageGroup[0].author?.image || 'default.webp')}}" class="profile-image">
+						<img src="{{'http://127.0.0.1:3000/avatar/' + (messageGroup[0].author?.image || 'default.webp')}}" class="profile-image">
 					</span>
 					<span>
 						<span class="name-display">
@@ -45,7 +45,7 @@
 						<div class="message-singleton" *ngFor="let message of messageGroup">
 							<span>{{message.text}}</span>
 							<div class="image-container">
-								<img class="message-image" *ngIf="message.image" src="{{'http://localhost:3000/uploads/' + message.image}}" (click)="openImageViewer('http://localhost:3000/uploads/' + message.image, imageViewer)">
+								<img class="message-image" *ngIf="message.image" src="{{'http://127.0.0.1:3000/uploads/' + message.image}}" (click)="openImageViewer('http://127.0.0.1:3000/uploads/' + message.image, imageViewer)">
 							</div>
 						</div>
 					</span>

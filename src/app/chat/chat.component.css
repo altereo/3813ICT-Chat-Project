@@ -122,6 +122,12 @@
 	position: absolute;
 	overflow-y: scroll;
 	overflow-x: hidden;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.scroller::-webkit-scrollbar {
+	display: none;
 }
 
 .scroller-content {

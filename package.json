@@ -7,7 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:3813ICT-Chat": "node dist/3813-ict-chat/server/server.mjs"
+    "serve:ssr:3813ICT-Chat": "node dist/3813-ict-chat/server/server.mjs",
+    "e2e": "ng e2e",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "private": true,
   "dependencies": {
@@ -40,6 +43,7 @@
     "@angular/cli": "^17.3.8",
     "@angular/compiler-cli": "^17.3.0",
     "@angular/localize": "^17.3.0",
+    "@cypress/schematic": "^2.5.2",
     "@types/express": "^4.17.17",
     "@types/jasmine": "~5.1.0",
     "@types/jquery": "^3.5.30",
@@ -50,6 +54,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.4.2"
+    "typescript": "~5.4.2",
+    "cypress": "latest"
   }
 }
